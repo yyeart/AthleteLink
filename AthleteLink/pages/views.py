@@ -7,6 +7,8 @@ def default_menu() -> tuple:
     """
     menu = (
         {'url': '/', 'text': 'Главная'},
+        {'url': '/user/register', 'text': 'Зарегистрироваться'},
+        {'url': '/user/login', 'text': 'Войти в аккаунт'}
     )
     return menu
 
