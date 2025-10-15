@@ -39,7 +39,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     preferred_age_max = models.PositiveIntegerField(default=25)
 
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()

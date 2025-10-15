@@ -32,3 +32,23 @@ class UserRegistrationForm(forms.ModelForm):
                 self.add_error('confirm_password', "Пароли не совпадают")
 
             return cleaned_data
+
+class UserLoginForm(forms.Form):
+    email = forms.CharField(
+        label='Адрес электронной почты/Имя пользователя',
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'mai@mai.education'}
+        )
+    )
+
+    password = forms.CharField(
+        label='Пароль',
+        required=True,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': '********'
+            }
+        )
+    )

@@ -6,7 +6,8 @@ from django.http import JsonResponse
 from django.conf import settings
 import random
 
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, UserLoginForm
+from .models import User
 
 def register(request):
     if request.method == 'POST':
@@ -24,6 +25,7 @@ def register(request):
             user.save()
             login(request, user)
             messages.success(request, 'Вы успешно зарегистрировались!')
+            print(form.data.get('email'), form.data.get('password'))
             return redirect('pages:home')
     else:
         form = UserRegistrationForm()
@@ -56,18 +58,31 @@ def send_verification_code(request):
 
 def user_login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
-
-        if user is not None:
-            login(request, user)
-            messages.success(request, f'Добро пожаловать, {user.first_name}')
-            return redirect('pages:home')
+        form = UserLoginForm(request.POST)
+        email = form.data.get('email')
+        password = form.data.get('password')
+        
+        try:
+            user = User.objects.get(email=email)
+            authenticate(request, email=email, password=password)
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(username=email)
+                authenticate(request, username=email, password=password)
+            except User.DoesNotExist:
+                messages.error(request, 'Пользователь не найден')
+                return render(request, 'user/login.html', {'form': form})
+        if user is None:
+            messages.error(request, 'Неверный пароль')
+            return render(request, 'user/login.html', {'form': form})
         else:
-            messages.error(request, 'Неверный email или пароль')
+            login(request, user)
+            messages.success(request, f'Добро пожаловать, {user.first_name}!')
+            return redirect('pages:home')
+    else:
+        form = UserLoginForm()
 
-    return render(request, 'user/login.html')
+    return render(request, 'user/login.html', {'form': form})
 
 def user_logout(request):
     logout(request)
