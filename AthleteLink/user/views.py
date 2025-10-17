@@ -17,7 +17,7 @@ def register(request):
 
         if entered_code != real_code:
             messages.error(request, 'Неверный код подтверждения')
-            return render(request, 'user/register.html', {'form': form})
+            return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
         
         if form.is_valid():
             user = form.save(commit=False)
@@ -30,7 +30,7 @@ def register(request):
     else:
         form = UserRegistrationForm()
 
-    return render(request, 'user/register.html', {'form': form})
+    return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
 
 def send_verification_code(request):
     if request.method == 'POST':
@@ -71,10 +71,10 @@ def user_login(request):
                 authenticate(request, username=email, password=password)
             except User.DoesNotExist:
                 messages.error(request, 'Пользователь не найден')
-                return render(request, 'user/login.html', {'form': form})
+                return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
         if user is None:
             messages.error(request, 'Неверный пароль')
-            return render(request, 'user/login.html', {'form': form})
+            return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
         else:
             login(request, user)
             messages.success(request, f'Добро пожаловать, {user.first_name}!')
@@ -82,7 +82,7 @@ def user_login(request):
     else:
         form = UserLoginForm()
 
-    return render(request, 'user/login.html', {'form': form})
+    return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
 
 def user_logout(request):
     logout(request)
@@ -90,7 +90,6 @@ def user_logout(request):
     return redirect('pages:home')
 
 def profile(request):
-    """
-    ЗАГЛУШКА
-    """
-    return redirect(request, 'pages:home')
+    context = {}
+    context['page_name'] = 'Профиль'
+    return render(request, 'user/profile.html', context)
