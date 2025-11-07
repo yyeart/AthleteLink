@@ -8,3 +8,19 @@ User = get_user_model()
 def profile_view(request, username):
     user = get_object_or_404(User, username=username)
     return render(request, 'user_profile/profile.html', {'profile_user': user})
+
+@login_required
+def stats_view(request, username):
+    return render(request, 'user_profile/stats.html')
+
+@login_required
+def inactive_view(request, username):
+    return render(request, 'user_profile/inactive.html')
+
+@login_required
+def games_view(request, username):
+    return render(request, 'user_profile/games.html')
+
+@login_required
+def settings_view(request, username):
+    return render(request, 'user_profile/settings.html')
