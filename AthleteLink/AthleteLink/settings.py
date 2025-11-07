@@ -82,7 +82,7 @@ DATABASES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+AUTHENTICATION_BACKENDS = ['user.backends.EmailOrUsernameBackend',]
 AUTH_USER_MODEL = 'user.User'
 LOGIN_REDIRECT_URL = 'user:profile'
 LOGOUT_REDIRECT_URL = 'pages:home'
