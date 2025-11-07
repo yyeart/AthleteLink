@@ -26,7 +26,7 @@ def register(request):
             login(request, user)
             messages.success(request, 'Вы успешно зарегистрировались!')
             print(form.data.get('email'), form.data.get('password'))
-            return redirect('pages:home')
+            return redirect('profile:detail', username=request.user.username)
     else:
         form = UserRegistrationForm()
 
@@ -78,7 +78,7 @@ def user_login(request):
         else:
             login(request, user)
             messages.success(request, f'Добро пожаловать, {user.first_name}!')
-            return redirect('pages:home')
+            return redirect('profile:detail', username=request.user.username)
     else:
         form = UserLoginForm()
 
@@ -88,8 +88,3 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли из аккаунта')
     return redirect('pages:home')
-
-def profile(request):
-    context = {}
-    context['page_name'] = 'Профиль'
-    return render(request, 'user/profile.html', context)

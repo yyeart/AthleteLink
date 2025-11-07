@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'pages',
     'user',
+    'user_profile',
 ]
 
 MIDDLEWARE = [
@@ -84,7 +85,7 @@ DATABASES = {
 
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
 AUTH_USER_MODEL = 'user.User'
-LOGIN_REDIRECT_URL = 'user:profile'
+LOGIN_REDIRECT_URL = 'profile:detail'
 LOGOUT_REDIRECT_URL = 'pages:home'
 LOGIN_URL = 'user:login'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # пока для отладки
