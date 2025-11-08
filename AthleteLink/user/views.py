@@ -21,7 +21,7 @@ def register(request):
         
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data.get('password1'))
+            user.set_password(form.cleaned_data.get('password'))
             user.save()
             login(request, user)
             messages.success(request, 'Вы успешно зарегистрировались!')
@@ -59,26 +59,18 @@ def send_verification_code(request):
 def user_login(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
-        email = form.data.get('email')
-        password = form.data.get('password')
-        
-        try:
-            user = User.objects.get(email=email)
-            authenticate(request, email=email, password=password)
-        except User.DoesNotExist:
-            try:
-                user = User.objects.get(username=email)
-                authenticate(request, username=email, password=password)
-            except User.DoesNotExist:
-                messages.error(request, 'Пользователь не найден')
+        if form.is_valid():
+            username_or_email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username_or_email, password=password)
+
+            if user:
+                login(request, user)
+                messages.success(request, f'Добро пожаловать, {user.first_name}!')
+                return redirect('profile:detail')
+            else:
+                messages.error(request, 'Неверный логин или пароль')
                 return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
-        if user is None:
-            messages.error(request, 'Неверный пароль')
-            return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
-        else:
-            login(request, user)
-            messages.success(request, f'Добро пожаловать, {user.first_name}!')
-            return redirect('profile:detail', username=request.user.username)
     else:
         form = UserLoginForm()
 
