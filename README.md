@@ -53,11 +53,13 @@ athletelink/
 ```bash
 git clone https://gitlab.mai.ru/layar/athletelink.git
 cd athletelink
-CMD (Windows):
+```
+**CMD (Windows):**
 
-cmd
+```cmd
 git clone https://gitlab.mai.ru/layar/athletelink.git
 cd athletelink
+```
 2. Настройка переменных окружения
 
 Создайте файл .env в корне проекта со следующим содержимым:
