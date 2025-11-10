@@ -65,7 +65,7 @@ cd athletelink
 
 Создайте файл `.env` в корне проекта со следующим содержимым:
 
-### env
+**env:**
 ```
 # Django
 DEBUG=False
@@ -127,187 +127,33 @@ docker-compose exec backend python manage.py createsuperuser
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-## 🛠️ Команды для разработки
-Запуск в фоновом режиме
-Bash:
+### 🔧 Конфигурация Docker
 
-bash
-docker-compose up -d
-CMD:
+**Сервисы в docker-compose.yml:**
 
-cmd
-docker-compose up -d
-Просмотр логов
-Bash:
+   1. db - PostgreSQL база данных
 
-bash
-docker-compose logs -f
-CMD:
+   2. backend - Django приложение
 
-cmd
-docker-compose logs -f
-Остановка контейнеров
-Bash:
+   3. frontend - React приложение
 
-bash
-docker-compose down
-CMD:
+   4. nginx - Веб-сервер и прокси
 
-cmd
-docker-compose down
-Полная остановка с удалением volumes (осторожно!)
-Bash:
+**Важные особенности:**
 
-bash
-docker-compose down -v
-CMD:
+ - База данных: Переход с SQLite на PostgreSQL завершен, используется в production-режиме
+ - Volumes: Данные PostgreSQL сохраняются в named volume postgres_data
+ - Сети: Все сервисы объединены в внутреннюю сеть athletelink_network
+ - Зависимости: Backend ждет готовности базы данных перед запуском
 
-cmd
-docker-compose down -v
-Пересборка и запуск
-Bash:
+### 📊 Миграция с SQLite на PostgreSQL
+ - Проект успешно переведен с SQLite на PostgreSQL со следующими изменениями:   
+ - Настройки базы данных в backend/athlete_link/settings.py
+ - Docker конфигурация с отдельным контейнером PostgreSQL
+ - Переменные окружения для гибкой конфигурации подключения к БД
 
-bash
-docker-compose up --build
-CMD:
-
-cmd
-docker-compose up --build
-Выполнение миграций
-Bash:
-
-bash
-docker-compose exec backend python manage.py migrate
-CMD:
-
-cmd
-docker-compose exec backend python manage.py migrate
-Создание миграций
-Bash:
-
-bash
-docker-compose exec backend python manage.py makemigrations
-CMD:
-
-cmd
-docker-compose exec backend python manage.py makemigrations
-Сбор статических файлов
-Bash:
-
-bash
-docker-compose exec backend python manage.py collectstatic --noinput
-CMD:
-
-cmd
-docker-compose exec backend python manage.py collectstatic --noinput
-Просмотр запущенных контейнеров
-Bash:
-
-bash
-docker-compose ps
-CMD:
-
-cmd
-docker-compose ps
-Перезапуск конкретного сервиса
-Bash:
-
-bash
-docker-compose restart backend
-CMD:
-
-cmd
-docker-compose restart backend
-🔧 Конфигурация Docker
-Сервисы в docker-compose.yml:
-db - PostgreSQL база данных
-
-backend - Django приложение
-
-frontend - React приложение
-
-nginx - Веб-сервер и прокси
-
-Важные особенности:
-База данных: Переход с SQLite на PostgreSQL завершен, используется в production-режиме
-
-Volumes: Данные PostgreSQL сохраняются в named volume postgres_data
-
-Сети: Все сервисы объединены в внутреннюю сеть athletelink_network
-
-Зависимости: Backend ждет готовности базы данных перед запуском
-
-📊 Миграция с SQLite на PostgreSQL
-Проект успешно переведен с SQLite на PostgreSQL со следующими изменениями:
-
-Настройки базы данных в backend/athlete_link/settings.py
-
-Docker конфигурация с отдельным контейнером PostgreSQL
-
-Переменные окружения для гибкой конфигурации подключения к БД
-
-🔒 Безопасность
-DEBUG режим отключен в production
-
-Статические файлы обслуживаются через Nginx
-
-CORS настроен для фронтенда
-
-Используются переменные окружения для чувствительных данных
-
-🐛 Решение проблем
-Проблема: Ошибка подключения к базе данных
-Bash:
-
-bash
-docker-compose down -v
-docker-compose up --build
-CMD:
-
-cmd
-docker-compose down -v
-docker-compose up --build
-Проблема: Миграции не применяются
-Bash:
-
-bash
-docker-compose exec backend python manage.py migrate
-CMD:
-
-cmd
-docker-compose exec backend python manage.py migrate
-Проблема: Статические файлы не загружаются
-Bash:
-
-bash
-docker-compose exec backend python manage.py collectstatic --noinput
-CMD:
-
-cmd
-docker-compose exec backend python manage.py collectstatic --noinput
-Проблема: Порт уже занят
-Остановите другие службы, использующие порты 80, 8000 или 5432, или измените порты в docker-compose.yml.
-
-Проблема: Ошибки прав доступа (Linux/Mac)
-Bash:
-
-bash
-sudo chown -R $USER:$USER .
-docker-compose up --build
-📞 Поддержка
-При возникновении проблем с запуском проекта, обратитесь к разработчику, ответственного за Docker-конфигурацию и миграцию базы данных.
-
-💡 Примечания для разных ОС
-Для пользователей Windows:
-Убедитесь, что Docker Desktop запущен
-
-Команды CMD работают в стандартной командной строке Windows
-
-Для лучшей совместимости рекомендуется использовать PowerShell или WSL2
-
-Для пользователей Linux/Mac:
-Команды bash работают в терминале
-
-Может потребоваться использование sudo в зависимости от настроек Docker
-
-Теперь ваша команда сможет работать с проектом независимо от используемой операционной системы!
+### 🔒 Безопасность
+ - DEBUG режим отключен в production
+ - Статические файлы обслуживаются через Nginx
+ - CORS настроен для фронтенда
+ - Используются переменные окружения для чувствительных данных
