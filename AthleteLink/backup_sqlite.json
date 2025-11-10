@@ -1,0 +1,31 @@
+[
+{
+  "model": "sessions.session",
+  "pk": "g9edaba11dya9qzfqbczr5h157finrwd",
+  "fields": {
+    "session_data": ".eJxVi7EOwjAMBf8lM6rqpKkxI1JnJubIiR2lgnZo6IT4d1qpA4x3793bBF5fJaxVlzCKuRgwp18XOT103ocdmwNrM0w8Pm_LfZMzT3o9bn9t4Vq2MCcvqNCinClbRctEsQd2lDtMTlUERT12Yp0HcLYHH6nNpJCTtGw-X8kqNoQ:1vIQnY:mi_sPBuRBLB4H_8hjXGoUOmv9nwIokmoeIJu-WTt7Xg",
+    "expire_date": "2025-11-24T12:15:04.725Z"
+  }
+},
+{
+  "model": "user.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bJKjV8O8pph21SP9uRBjpL$e19L9lzieUSN2iGZylOM9BzB9tOY9xzV7Z5eppqOvMc=",
+    "last_login": "2025-11-10T12:15:04.712Z",
+    "first_name": "Sergey",
+    "last_name": null,
+    "nickname": "Serror",
+    "telegram": "@Serror16",
+    "gender": null,
+    "birth_date": "2007-11-16",
+    "city": "Moscow",
+    "email": "ser2007belk@bk.ru",
+    "bio": null,
+    "created_at": "2025-11-10T12:14:34.642Z",
+    "is_active": true,
+    "is_staff": true,
+    "is_superuser": true
+  }
+}
+]

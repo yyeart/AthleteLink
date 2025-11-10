@@ -32,14 +32,13 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth', 
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'pages',
     'user',
+    'pages',
 ]
 
 MIDDLEWARE = [
@@ -79,9 +78,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'athletelink_db',
-        'USER': 'athletelink_user',
-        'PASSWORD': 'secure_password_123',
-        'HOST': 'localhost',
+        'USER': 'athletelink_user', 
+        'PASSWORD': 'athletelink_password',
+        'HOST': 'db',  # ← ВАЖНО: имя сервиса из docker-compose.yml
         'PORT': '5432',
     }
 }

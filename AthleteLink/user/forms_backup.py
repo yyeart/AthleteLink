@@ -9,12 +9,23 @@ class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            'email', 'first_name', 'last_name', 
+            'email', 'password', 'password_confirm', 'first_name', 'last_name', 
             'nickname', 'telegram', 'gender', 'birth_date', 'city', 'bio'
         ]
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date'}),
             'bio': forms.Textarea(attrs={'rows': 4}),
+        }
+        labels = {
+            'email': 'Email',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'nickname': 'Никнейм',
+            'telegram': 'Telegram',
+            'gender': 'Пол',
+            'birth_date': 'Дата рождения',
+            'city': 'Город',
+            'bio': 'О себе',
         }
 
     def clean(self):
@@ -24,6 +35,7 @@ class UserRegistrationForm(forms.ModelForm):
 
         if password and password_confirm and password != password_confirm:
             self.add_error('password_confirm', "Пароли не совпадают")
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -34,4 +46,8 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 class UserLoginForm(AuthenticationForm):
-    username = forms.EmailField(label='Email')
+    username = forms.EmailField(label='Email')  # Используем email вместо username
+    
+    class Meta:
+        model = User
+        fields = ['username', 'password']
