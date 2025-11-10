@@ -63,9 +63,9 @@ cd athletelink
 ```
 ### 2. Настройка переменных окружения
 
-Создайте файл .env в корне проекта со следующим содержимым:
+Создайте файл `.env` в корне проекта со следующим содержимым:
 
-**env**
+### env
 ```
 # Django
 DEBUG=False
@@ -82,50 +82,52 @@ DB_PORT=5432
 # Frontend
 VITE_API_URL=http://localhost:8000/api
 ```
-Важно: Замените your-secret-key-here на надежный секретный ключ и your-strong-password на надежный пароль для базы данных.
+Важно: Замените `your-secret-key-here` на надежный секретный ключ и `your-strong-password` на надежный пароль для базы данных.
 
 ### 3. Запуск контейнеров
-Bash (Linux/Mac/Git Bash):
+**Bash (Linux/Mac/Git Bash):**
 
-bash
+```
 docker-compose up --build
-CMD (Windows):
+```
 
-cmd
+**CMD (Windows):**
+
+```
 docker-compose up --build
+```
 Эта команда:
 
-Соберет образы для backend, frontend и nginx
+ - Соберет образы для backend, frontend и nginx
+ - Запустит PostgreSQL базу данных
+ - Запустит миграции Django
+ - Соберет статические файлы Django
+ - Запустит все сервисы
 
-Запустит PostgreSQL базу данных
-
-Запустит миграции Django
-
-Соберет статические файлы Django
-
-Запустит все сервисы
-
-4. Проверка работы
+### 4. Проверка работы
 После успешного запуска приложение будет доступно по адресам:
 
-Frontend: http://localhost
+ - **Frontend:** http://localhost
 
-Backend API: http://localhost/api
+ - **Backend API:** http://localhost/api
 
-Админка Django: http://localhost/admin
+ - **Админка Django:** http://localhost/admin
 
-5. Создание суперпользователя (опционально)
+### 5. Создание суперпользователя (опционально)
 Для доступа к админке Django создайте суперпользователя:
 
-Bash (Linux/Mac/Git Bash):
+**Bash (Linux/Mac/Git Bash):**
 
-bash
+```
 docker-compose exec backend python manage.py createsuperuser
-CMD (Windows):
+```
+**CMD (Windows):**
 
-cmd
+```
 docker-compose exec backend python manage.py createsuperuser
-🛠️ Команды для разработки
+```
+
+## 🛠️ Команды для разработки
 Запуск в фоновом режиме
 Bash:
 
