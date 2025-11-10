@@ -21,8 +21,8 @@
 - **Nginx** - веб-сервер и прокси
 - **PostgreSQL** - контейнер с базой данных
 
-📁 Структура проекта
-text
+### 📁 Структура проекта
+```
 athletelink/
 ├── backend/                 # Django приложение
 │   ├── athlete_link/       # Основной проект Django
@@ -39,6 +39,7 @@ athletelink/
 │   └── nginx.conf
 ├── docker-compose.yml      # Docker Compose конфигурация
 └── README.md
+```
 
 
 ## 🚀 Запуск проекта
@@ -50,21 +51,22 @@ athletelink/
 ### 1. Клонирование репозитория
 
 **Bash (Linux/Mac/Git Bash):**
-```bash
+```
 git clone https://gitlab.mai.ru/layar/athletelink.git
 cd athletelink
 ```
 **CMD (Windows):**
 
-```cmd
+```
 git clone https://gitlab.mai.ru/layar/athletelink.git
 cd athletelink
 ```
-2. Настройка переменных окружения
+### 2. Настройка переменных окружения
 
 Создайте файл .env в корне проекта со следующим содержимым:
 
-env
+**env**
+```
 # Django
 DEBUG=False
 SECRET_KEY=your-secret-key-here
@@ -79,9 +81,10 @@ DB_PORT=5432
 
 # Frontend
 VITE_API_URL=http://localhost:8000/api
+```
 Важно: Замените your-secret-key-here на надежный секретный ключ и your-strong-password на надежный пароль для базы данных.
 
-3. Запуск контейнеров
+### 3. Запуск контейнеров
 Bash (Linux/Mac/Git Bash):
 
 bash
