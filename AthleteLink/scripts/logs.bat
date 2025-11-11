@@ -1,3 +1,3 @@
 @echo off
 echo Athletelink Logs:
-docker-compose logs -f
+src\\docker-compose logs -f

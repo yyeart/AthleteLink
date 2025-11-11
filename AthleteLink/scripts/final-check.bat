@@ -6,11 +6,11 @@ curl -s http://localhost:8000 | findstr "Athletelink" >nul && echo "✅ Прил
 
 echo.
 echo 2. Контейнеры:
-docker-compose ps
+src\\docker-compose ps
 
 echo.
 echo 3. Логи (последние 2 строки):
-docker-compose logs web --tail=2
+src\\docker-compose logs web --tail=2
 
 echo.
 echo ✅ ВСЁ ГОТОВО! Откройте: http://localhost:8000

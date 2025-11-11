@@ -1,8 +1,8 @@
 @echo off
 echo Запуск Athletelink...
 echo.
-docker-compose down
-docker-compose up -d
+src\\docker-compose down
+src\\docker-compose up -d
 timeout /t 5 /nobreak >nul
 echo.
 echo Приложение запущено: http://localhost:8000
