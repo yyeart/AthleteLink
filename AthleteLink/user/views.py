@@ -67,7 +67,7 @@ def user_login(request):
             if user:
                 login(request, user)
                 messages.success(request, f'Добро пожаловать, {user.first_name}!')
-                return redirect('profile:detail')
+                return redirect('profile:detail', username=request.user.username)
             else:
                 messages.error(request, 'Неверный логин или пароль')
                 return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
