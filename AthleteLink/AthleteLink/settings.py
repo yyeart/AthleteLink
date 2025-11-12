@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'pages',
     'user',
     'user_profile',
+    'requests',
 ]
 
 MIDDLEWARE = [
