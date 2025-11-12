@@ -1,6 +1,6 @@
 @echo off
 echo Stopping Athletelink...
-src\\docker-compose down
+docker-compose -f src/docker-compose.yml down
 echo.
 echo Project stopped.
 pause
