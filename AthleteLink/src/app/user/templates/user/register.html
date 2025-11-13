@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Регистрация в AthleteLink</h2>
+  <form id="register-form" method="POST" action="{% url 'user:register' %}" novalidate>
+    {% csrf_token %}
+
+    {{ form.first_name.label_tag }} {{ form.first_name }}
+    {{ form.last_name.label_tag }} {{ form.last_name }}
+    {{ form.nickname.label_tag }} {{ form.nickname }}
+    {{ form.telegram_username.label_tag }} {{ form.telegram_username }}
+    {{ form.gender.label_tag }} {{ form.gender }}
+    {{ form.birth_date.label_tag }} {{ form.birth_date }}
+    {{ form.location.label_tag }} {{ form.location }}
+    {{ form.preferred_gender.label_tag }} {{ form.preferred_gender }}
+    {{ form.preferred_age_min.label_tag }} {{ form.preferred_age_min }}
+    {{ form.preferred_age_max.label_tag }} {{ form.preferred_age_max }}
+    {{ form.email.label_tag }} {{ form.email }}
+    {{ form.username.label_tag }} {{ form.username }}
+    {{ form.telegram.label_tag }} {{ form.telegram }}
+
+    <div class="mb-2">
+      {{ form.password.label_tag }}
+      {{ form.password }}
+      {% if form.password.errors %}
+        <div class="text-danger">{{ form.password.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="mb-2">
+      {{ form.confirm_password.label_tag }}
+      {{ form.confirm_password }}
+      {% if form.confirm_password.errors %}
+        <div class="text-danger">{{ form.confirm_password.errors }}</div>
+      {% endif %}
+    </div>
+
+    <button type="button" id="get-code-btn" class="btn btn-outline-primary mt-2">
+      Получить код подтверждения
+    </button>
+
+    <div id="code-field" style="display: none;" class="mt-2">
+      <label>Код подтверждения</label>
+      <input type="text" name="verification_code" class="form-control" required>
+    </div>
+
+
+
+    <button type="submit" class="btn btn-success mt-3">Зарегистрироваться</button>
+  </form>
+</div>
+{% if form.errors %}
+<div class="alert alert-danger mt-3">
+  {{ form.errors }}
+</div>
+{% endif %}
+
+
+<script>
+document.querySelector("#get-code-btn").addEventListener("click", async () => {
+    const email = document.querySelector("[name=email]").value;
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    if (!email) {
+        alert("Введите email перед получением кода!");
+        return;
+    }
+
+    try {
+        const response = await fetch("{% url 'user:send_code' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ email }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            document.querySelector("#code-field").style.display = "block";
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        alert("Ошибка при отправке запроса: " + err);
+    }
+});
+</script>
+
+{% endblock %}
