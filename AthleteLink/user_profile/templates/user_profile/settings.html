@@ -1,9 +1,0 @@
-{% extends "user_profile/base_profile.html" %}
-
-{% block profile_content %}
-<h3 class="fw-bold">Настройки</h3>
-<form method="POST">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger mt-3">Выйти из аккаунта</button>
-</form>
-{% endblock %}
