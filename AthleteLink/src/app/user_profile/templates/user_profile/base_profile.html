@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+  <!-- Верхняя панель профиля -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="btn-group" role="group">
+
+      <a href="{% url 'profile:detail' username=request.user.username %}"
+         class="btn {% if request.resolver_match.url_name == 'detail' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+         Профиль
+      </a>
+
+      <a href="{% url 'profile:stats' username=request.user.username %}"
+         class="btn {% if request.resolver_match.url_name == 'stats' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+         Статистика
+      </a>
+
+      <a href="{% url 'profile:inactive' username=request.user.username %}"
+         class="btn {% if request.resolver_match.url_name == 'inactive' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+         Неактивен
+      </a>
+
+      <a href="{% url 'profile:games' username=request.user.username %}"
+         class="btn {% if request.resolver_match.url_name == 'games' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+         Игры
+      </a>
+
+      <a href="{% url 'profile:settings' username=request.user.username %}"
+         class="btn {% if request.resolver_match.url_name == 'settings' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+         Настройки
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Основной контент -->
+  <div class="card shadow-sm border-0 p-4 rounded-4">
+    {% block profile_content %}
+    {% endblock %}
+  </div>
+</div>
+
+{% endblock %}
