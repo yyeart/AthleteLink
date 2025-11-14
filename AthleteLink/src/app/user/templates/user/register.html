@@ -7,11 +7,11 @@
 
     {{ form.first_name.label_tag }} {{ form.first_name }}
     {{ form.last_name.label_tag }} {{ form.last_name }}
-    {{ form.nickname.label_tag }} {{ form.nickname }}
+    {{ form.username.label_tag }} {{ form.username }}
     {{ form.telegram_username.label_tag }} {{ form.telegram_username }}
     {{ form.gender.label_tag }} {{ form.gender }}
     {{ form.birth_date.label_tag }} {{ form.birth_date }}
-    {{ form.location.label_tag }} {{ form.location }}
+    {{ form.city.label_tag }} {{ form.city }}
     {{ form.preferred_gender.label_tag }} {{ form.preferred_gender }}
     {{ form.preferred_age_min.label_tag }} {{ form.preferred_age_min }}
     {{ form.preferred_age_max.label_tag }} {{ form.preferred_age_max }}
@@ -28,10 +28,10 @@
     </div>
     
     <div class="mb-2">
-      {{ form.confirm_password.label_tag }}
-      {{ form.confirm_password }}
-      {% if form.confirm_password.errors %}
-        <div class="text-danger">{{ form.confirm_password.errors }}</div>
+      {{ form.password_confirm.label_tag }}
+      {{ form.password_confirm }}
+      {% if form.password_confirm.errors %}
+        <div class="text-danger">{{ form.password_confirm.errors }}</div>
       {% endif %}
     </div>
 

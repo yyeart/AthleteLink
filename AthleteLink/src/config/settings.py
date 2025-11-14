@@ -9,7 +9,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here'
+SECRET_KEY = 'django-insecure-b@zh)v&u3@rr=!9mt#k@h(64s_!g0ouv9uv0mdv@r4wrh!k^)5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'app',
     'app.pages', 
     'app.user',
+    'app.user_profile', 
+    'app.requests'
 ]
 
 MIDDLEWARE = [
@@ -65,13 +67,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'athletelink_db',
-        'USER': 'athletelink_user',
-        'PASSWORD': 'athletelink_password',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
         'PORT': '5432',
     }
 }
+
+AUTHENTICATION_BACKENDS = ['app.user.backends.EmailOrUsernameBackend',]
+AUTH_USER_MODEL = 'user.User'
+LOGIN_REDIRECT_URL = 'profile:detail'
+LOGOUT_REDIRECT_URL = 'pages:home'
+LOGIN_URL = 'user:login'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # пока для отладки
+DEFAULT_FROM_EMAIL = 'noreply@athletelink.local' # аналогично
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -90,7 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True

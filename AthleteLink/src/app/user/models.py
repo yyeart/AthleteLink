@@ -20,13 +20,12 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     first_name = models.CharField(max_length=100, verbose_name='Имя')
     last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Фамилия')
-    nickname = models.CharField(max_length=50, unique=True, verbose_name='Никнейм')
+    username = models.CharField(max_length=50, unique=True, verbose_name='Никнейм')
     telegram = models.CharField(max_length=100, verbose_name='Telegram')
     
     GENDER_CHOICES = [
         ('male', 'Мужской'),
         ('female', 'Женский'),
-        ('other', 'Другое'),
     ]
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True, verbose_name='Пол')
     
@@ -41,7 +40,7 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nickname', 'first_name', 'telegram', 'birth_date', 'city']
+    REQUIRED_FIELDS = ['username', 'first_name', 'telegram', 'birth_date', 'city']
     
     objects = UserManager()
     
@@ -51,7 +50,7 @@ class User(AbstractBaseUser):
         verbose_name_plural = 'Пользователи'
     
     def __str__(self):
-        return f"{self.nickname} ({self.email})"
+        return f"{self.username} ({self.email})"
     
     def has_perm(self, perm, obj=None):
         return self.is_superuser

@@ -10,7 +10,7 @@ class UserRegistrationForm(forms.ModelForm):
         model = User
         fields = [
             'email', 'first_name', 'last_name', 
-            'nickname', 'telegram', 'gender', 'birth_date', 'city', 'bio'
+            'username', 'telegram', 'gender', 'birth_date', 'city', 'bio'
         ]
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date'}),
@@ -33,5 +33,22 @@ class UserRegistrationForm(forms.ModelForm):
             user.save()
         return user
 
-class UserLoginForm(AuthenticationForm):
-    username = forms.EmailField(label='Email')
+class UserLoginForm(forms.Form):
+    email = forms.CharField(
+        label='Адрес электронной почты/Имя пользователя',
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'mai@mai.education'}
+        )
+    )
+
+    password = forms.CharField(
+        label='Пароль',
+        required=True,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': '********'
+            }
+        )
+    )
