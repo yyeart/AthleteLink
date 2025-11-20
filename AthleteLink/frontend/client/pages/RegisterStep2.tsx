@@ -26,12 +26,12 @@ export default function RegisterStep2() {
       {/* Animated Dart Emojis */}
       <div className="absolute left-0 top-0 w-full h-full pointer-events-none">
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/361a419c17cacd21bc4eceaa8cb2d3b107b7a9ec?width=700"
+          src="/lev_dartz.webp"
           alt=""
           className="absolute left-0 md:left-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[350px] lg:h-[350px] opacity-90 animate-levitate-active"
         />
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/361a419c17cacd21bc4eceaa8cb2d3b107b7a9ec?width=700"
+          src="/lev_dartz.webp"
           alt=""
           className="absolute right-0 md:right-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[350px] lg:h-[350px] opacity-90 animate-levitate-active-slow"
         />

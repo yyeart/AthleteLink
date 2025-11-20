@@ -57,12 +57,12 @@ export default function Login() {
       {/* Animated Trophy Emojis */}
       <div className="absolute left-0 top-0 w-full h-full pointer-events-none">
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/34b333cd5a2cde0115a7040304981d564cd61a21?width=708"
+          src="/lev_trophy.webp"
           alt=""
           className="absolute left-0 md:left-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[354px] lg:h-[354px] opacity-90 animate-levitate-active"
         />
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/132ed257e685ec41aec2decd1b3a204dc8994b36?width=708"
+          src="/lev_trophy.webp"
           alt=""
           className="absolute right-0 md:right-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[354px] lg:h-[354px] opacity-90 animate-levitate-active-slow"
         />

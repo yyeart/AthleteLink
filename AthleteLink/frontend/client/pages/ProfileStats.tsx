@@ -1,84 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { USER_STATS } from "@/constants/statsConstants";
 
-interface Request {
-  id: number;
-  eventName: string;
-  date: string;
-  sport: string;
-  applicationStatus: string;
-  gameResult: string;
-  resultColor: "gray" | "black" | "green" | "red";
-}
-
-export default function Requests() {
+export default function ProfileStats() {
   const navigate = useNavigate();
-
-  const requests: Request[] = [
-    {
-      id: 1,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Одобрена",
-      gameResult: "Н/Д",
-      resultColor: "gray",
-    },
-    {
-      id: 2,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Отклонена",
-      gameResult: "Н/Д",
-      resultColor: "gray",
-    },
-    {
-      id: 3,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Отменена",
-      resultColor: "black",
-    },
-    {
-      id: 4,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Победа",
-      resultColor: "green",
-    },
-    {
-      id: 5,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Поражение",
-      resultColor: "red",
-    },
-  ];
-
-  const getResultCircleColor = (color: string) => {
-    switch (color) {
-      case "gray":
-        return "bg-[#848484]";
-      case "black":
-        return "bg-black";
-      case "green":
-        return "bg-[#48FF55]/38";
-      case "red":
-        return "bg-[#FF7B7B]/57";
-      default:
-        return "bg-gray-400";
-    }
-  };
+  const [bounceCount, setBounceCount] = useState(0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
-      <div className="flex h-screen">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
         <div className="w-[76px] border-r-2 border-[#5F5C5C] relative flex flex-col items-center pt-8 gap-12">
           {/* Navigation Icons */}
@@ -86,7 +17,7 @@ export default function Requests() {
             {/* Dashboard Icon */}
             <button onClick={() => navigate("/profile")}>
               <svg
-                className="w-[21px] h-[22px] opacity-50 mt-10"
+                className="w-[21px] h-[22px] opacity-50 hover:opacity-100 transition-opacity mt-10"
                 viewBox="0 0 21 22"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -110,10 +41,11 @@ export default function Requests() {
               </svg>
             </button>
 
-            {/* Analytics Icon */}
-            <button onClick={() => navigate("/stats")}>
+            {/* Analytics Icon - Active */}
+            <div className="relative">
+              <div className="absolute left-0 top-0 w-[76px] h-[50px] bg-gradient-to-r from-[#4182F9]/50 to-[#4182F9]/0 -ml-10 mt-[-0.99rem]"></div>
               <svg
-                className="w-[21px] h-[20px] opacity-50 hover:opacity-100 transition-opacity"
+                className="w-[21px] h-[20px] relative z-10"
                 viewBox="0 0 21 20"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +65,7 @@ export default function Requests() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </button>
+            </div>
 
             {/* Medal Icon */}
             <svg
@@ -165,11 +97,10 @@ export default function Requests() {
               />
             </svg>
 
-            {/* Messages Icon - Active */}
-            <div className="relative">
-              <div className="absolute left-0 top-0 w-[76px] h-[50px] bg-gradient-to-r from-[#4182F9]/50 to-[#4182F9]/0 -ml-10 mt-[-0.99rem]"></div>
+            {/* Messages Icon */}
+            <button onClick={() => navigate("/requests")}>
               <svg
-                className="w-[21px] h-[21px] relative z-10"
+                className="w-[21px] h-[21px] opacity-50 hover:opacity-100 transition-opacity"
                 viewBox="0 0 21 21"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -212,7 +143,7 @@ export default function Requests() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </div>
+            </button>
 
             {/* Settings Icon */}
             <button onClick={() => navigate("/settings")}>
@@ -249,10 +180,10 @@ export default function Requests() {
           <div className="flex items-center justify-between mb-12">
             <div>
               <h1 className="text-[#C9D2FF] text-2xl font-medium mb-1">
-                Добрый день, Захар
+                Добрый день, {USER_STATS.userName}
               </h1>
               <p className="text-white text-base font-light">
-                Сб, 11 октября 2025
+                {USER_STATS.currentDate}
               </p>
             </div>
 
@@ -327,86 +258,240 @@ export default function Requests() {
             </div>
           </div>
 
-          {/* Requests Section */}
-          <div className="rounded-[10px] bg-[#DDD]/50 p-8 min-h-[918px]">
-            <h2 className="text-black text-[50px] font-light text-center mb-8">
-              Текущие заявки
+          {/* Main Content Area */}
+          <div className="rounded-[10px] bg-white/50 p-8 relative min-h-[850px]">
+            {/* Title */}
+            <h2 className="text-black text-[46px] font-medium mb-4">
+              Спортивный престиж
             </h2>
 
-            {/* Requests List */}
-            <div className="space-y-5">
-              {requests.map((request) => (
+            {/* Description */}
+            <p className="text-black/80 text-base mb-6 max-w-[710px]">
+              Зарабатывайте опыт в товарищеских/рейтинговых встречах, чтобы
+              повышать уровень!
+              <br />
+              До следующего уровня престижа: {USER_STATS.nextLevelXP} очков
+              опыта
+            </p>
+
+            {/* Progress Bar Section */}
+            <div className="relative mb-12">
+              <div
+                className="h-[46px] rounded-[50px] border-[3px] border-black 
+             bg-gradient-to-r from-[#4986F9] via-[#2A387B] to-black 
+             shadow-[0_6px_4px_4px_rgba(0,0,0,0.33)] relative overflow-hidden 
+             max-w-[90%] mx-auto" // <-- Адаптивность через max-w-[90%] и mx-auto
+              >
                 <div
-                  key={request.id}
-                  className="border-[3px] border-black rounded-[50px] p-6 flex items-center justify-between backdrop-blur-sm relative overflow-hidden"
+                  className="h-full bg-gradient-to-r from-[#4986F9] to-[#2A387B] 
+               rounded-[5000px]"
                   style={{
-                    background:
-                      "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
-                    mixBlendMode: "plus-darker",
+                    width: `${(USER_STATS.currentXP / USER_STATS.maxXP) * 100}%`,
+                  }}
+                ></div>
+              </div>
+
+              {/* Level indicator triangle and badge */}
+              <div
+                className="absolute top-[calc(46pxpx)] left-1/2 -translate-x-1/2 
+             flex flex-col items-center"
+              >
+                <svg
+                  className="w-[27px] h-[32px] drop-shadow-[0_5px_4px_rgba(0,0,0,0.75)]"
+                  viewBox="0 0 32 33"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M15.6914 0L27.3827 24H4.00006L15.6914 0Z"
+                    fill="url(#paint0_linear)"
+                    stroke="black"
+                    strokeWidth="1.5"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear"
+                      x1="15.6914"
+                      y1="0"
+                      x2="15.6914"
+                      y2="32"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#D3D3D3" />
+                      <stop offset="1" stopColor="#EBEBEB" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                <div className="bg-[#3462AB] rounded-lg px-3 py-1 text-white text-sm text-center drop-shadow-[0_5px_4px_rgba(0,0,0,0.75)] mt-1">
+                  {USER_STATS.currentXP}/{USER_STATS.maxXP}
+                </div>
+              </div>
+
+              {/* Level number */}
+              <div
+                className="absolute top-[-19px] right-[170px] text-white text-[50px] font-bold stroke-black stroke-[4px]"
+                style={{ WebkitTextStroke: "4px black" }}
+              >
+                {USER_STATS.currentLevel}
+              </div>
+            </div>
+
+            {/* Three Column Layout */}
+            <div className="grid grid-cols-3 gap-6 mt-20">
+              {/* Left Card - Best Sport */}
+              <div className="rounded-[55px] border-[1.5px] border-black bg-gradient-to-r from-[#4F0A0A] to-[#780000] shadow-[0_14px_4px_0_rgba(0,0,0,0.50)] p-6 flex flex-col items-center relative overflow-visible ">
+                {/* Badge Image positioned above the card */}
+                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 rotate-10 transform-origin-center scale-125">
+                  <img
+                    src={`${USER_STATS.badgeImage}?width=598 `}
+                    alt="Badge"
+                    className="w-[299px] h-[298px] object-contain"
+                  />
+                </div>
+
+                {/* Roman Numeral */}
+                <div
+                  className="text-[#760000] text-[100px] font-bold text-center mt-48"
+                  style={{
+                    WebkitTextStroke: "3px black",
+                    textShadow: "0 10px 4px rgba(0, 0, 0, 0.50)",
+                    fontFamily: "Piazzolla, serif",
                   }}
                 >
-                  <div
-                    className="absolute inset-0 -z-10 rounded-[50px]"
-                    style={{
-                      backgroundImage:
-                        "url('https://cdn.builder.io/api/v1/image/assets%2F9b4b6868ed8d4ab0841339e996a44e0f%2F29814a62ea5a4dbaab3e007976816fb6?format=webp&width=800')",
-                      backgroundSize: "250px 250px",
-                      backgroundPosition: "0 0",
-                      backgroundRepeat: "repeat",
-                      opacity: 0.05,
-                    }}
-                  ></div>
-                  {/* Left Side - Event Info */}
-                  <div className="flex-1 relative z-10">
-                    <h3 className="text-black text-4xl font-light mb-3">
-                      {request.eventName}
-                    </h3>
-                    <div className="flex items-center gap-3">
-                      <div className="border-[3px] border-black rounded-[50px] px-5 py-2">
-                        <span className="text-black text-base font-light">
-                          {request.date}
-                        </span>
+                  {USER_STATS.rankRomanNumeral}
+                </div>
+
+                <h3 className="text-[#D9D9D9] text-[32px] font-light text-center mt-8">
+                  Ваш лучший спорт: {USER_STATS.bestSport}
+                </h3>
+
+                <p className="text-[#D9D9D9] text-xl text-center mt-4">
+                  Ранг: {USER_STATS.sportRank} ({USER_STATS.sportRankProgress})
+                  <br />
+                  Глобальный рейтинг: {USER_STATS.globalRanking}
+                </p>
+
+                <p className="text-[#D9D9D9] text-xl text-center mt-4">
+                  Всего побед: {USER_STATS.totalWins}
+                  <br />
+                  Win Rate: {USER_STATS.winRate}
+                </p>
+              </div>
+
+              {/* Middle Card - Recent Games */}
+              <div className="rounded-[55px] border-[3px] border-black bg-[#4986F9]/40 shadow-[0_14px_4px_0_rgba(0,0,0,0.50)] p-6">
+                <h3 className="text-black text-[30px] text-center mb-6">
+                  Последние игры ({USER_STATS.recentGames.length})
+                </h3>
+
+                <div className="space-y-4">
+                  {USER_STATS.recentGames.map((game) => (
+                    <div
+                      key={game.id}
+                      className="border-[3px] border-black rounded-[55px] p-4"
+                    >
+                      <div className="border-[3px] border-black rounded-[50px] px-4 py-3 mb-2">
+                        <p className="text-black text-sm">
+                          {game.date} - {game.sport}
+                          <br />
+                          Матч 1х1 против {game.opponent}
+                        </p>
                       </div>
-                      <div className="border-[3px] border-black rounded-[50px] px-5 py-1.5">
-                        <span className="text-black text-base font-light">
-                          {request.sport}
-                        </span>
+                      <div className="border-[3px] border-black rounded-[50px] px-4 py-3">
+                        <p className="text-white text-sm">{game.result}</p>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
 
-                  {/* Right Side - Status Info */}
-                  <div className="border-[3px] border-black rounded-[50px] px-8 py-4 min-w-[466px] relative z-10">
-                    <div className="space-y-3">
-                      {/* Application Status */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-black text-2xl font-light">
-                          Статус заявки
+                <button
+                  onClick={() => navigate("/public-profile")}
+                  className="w-full mt-6 bg-[#4182F9] text-white text-sm rounded-lg px-6 py-2 drop-shadow-[0_8px_4px_rgba(0,0,0,0.50)] hover:bg-[#3671E8] transition-colors"
+                >
+                  Как мой профиль видят другие люди?
+                </button>
+              </div>
+
+              {/* Right Card - Current Ranking */}
+              <div className="flex flex-col gap-6">
+                <p className="text-black text-2xl font-medium opacity-80">
+                  Сейчас в рейтинге Вы выглядите так:
+                </p>
+
+                <div className="rounded-[55px] border-[1.5px] border-black bg-gradient-to-r from-[#4F0A0A] to-[#780000] p-6">
+                  <div className="rounded-[50px] border-[3px] border-black p-4 flex items-center gap-4">
+                    <img
+                      src={`${USER_STATS.rankingProfileImage}?width=116`}
+                      alt="Profile"
+                      className="w-[58px] h-[58px] rounded-full object-cover"
+                    />
+
+                    <div className="flex-1">
+                      <h4
+                        className="text-white text-base font-bold"
+                        style={{ WebkitTextStroke: "1px black" }}
+                      >
+                        {USER_STATS.rankingName}
+                      </h4>
+                      <p
+                        className="text-xs font-bold bg-gradient-to-b from-[#A2E1B1] via-[#AE349C] to-white bg-clip-text text-transparent"
+                        style={{ WebkitTextStroke: "1px black" }}
+                      >
+                        {USER_STATS.rankingTitle}
+                        <br />
+                        <span className="text-white">
+                          Уровень опыта: {USER_STATS.rankingLevel} (
+                          {USER_STATS.rankingXP})
                         </span>
-                        <span className="text-black text-2xl font-light">
-                          {request.applicationStatus}
-                        </span>
-                      </div>
-                      {/* Game Result */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-black text-2xl font-light">
-                          Результат игры
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-[23px] h-[23px] rounded-full border border-black ${getResultCircleColor(
-                              request.resultColor,
-                            )}`}
-                          ></div>
-                          <span className="text-black text-2xl font-light">
-                            {request.gameResult}
-                          </span>
-                        </div>
-                      </div>
+                      </p>
+                    </div>
+
+                    <div
+                      className="text-white text-2xl font-bold"
+                      style={{ WebkitTextStroke: "1px black" }}
+                    >
+                      {USER_STATS.rankingPosition}
                     </div>
                   </div>
                 </div>
-              ))}
+
+                {/* Cat Image with Bounce Animation */}
+                <div className="flex justify-center">
+                  <motion.div
+                    key={bounceCount}
+                    className="cursor-pointer"
+                    onClick={() => setBounceCount((prev) => prev + 1)}
+                    initial={{ scale: 1 }}
+                    animate={{
+                      scale: [1, 0.6, 1.4, 0.9, 1.1, 0.95, 1.05, 1],
+                      rotate: [0, -5, 5, -3, 3, 0],
+                      y: [0, -15, -30, -20, -10, -3, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1],
+                      ease: "easeInOut",
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <motion.img
+                      src={USER_STATS.catImage}
+                      alt="Chubby cat"
+                      className="w-[360px] h-[360px] object-contain drop-shadow-2xl select-none"
+                      animate={{
+                        scaleX: [1, 0.8, 1.3, 0.9, 1.1, 1],
+                        scaleY: [1, 1.3, 0.7, 1.1, 0.95, 1],
+                      }}
+                      transition={{
+                        duration: 0.8,
+                        times: [0, 0.15, 0.3, 0.5, 0.7, 1],
+                        ease: [0.34, 1.56, 0.64, 1],
+                      }}
+                    />
+                  </motion.div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
