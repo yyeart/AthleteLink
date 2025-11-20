@@ -3,23 +3,53 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login logic
-    console.log("Login attempt:", { email, password, rememberMe });
-
+    setError(null);
     setIsLoading(true);
-    setTimeout(() => {
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+    try {
+        const response = await fetch(`${apiUrl}/user/login/`, {
+            method: 'POST', // !!! УБЕДИТЕСЬ, ЧТО МЕТОД - POST !!!
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include', 
+            body: JSON.stringify({ email, password }),
+        });
+
+      const data = await response.json();
+
+      if(response.ok) {
+        console.log("Login success:", data);
+        navigate(`${data.username}/profile/`);
+      } else{
+        console.error("Login error:", data);
+        let errorMessage = "Произошла ошибка при входе";
+        if (data.errors){
+          if (data.errors.non_field_errors) errorMessage = data.errors.non_field_errors[0];
+          else if (data.errors.email) errorMessage = data.errors.email[0];
+          else if (data.errors.password) errorMessage = data.errors.password[0];
+        }
+        setError(errorMessage);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      setError("Ошибка соединения с сервером. Скорее всего, Docker не запущен.");
+    } finally {
       setIsLoading(false);
-      // Redirect to profile after successful login
-      navigate("/profile");
-    }, 500);
+    }
   };
 
   return (
