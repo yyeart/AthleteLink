@@ -6,19 +6,12 @@ import { createServer } from "./server";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: true,
+    host: "::",
     port: 8080,
-    strictPort: true,
-    watch: {
-      usePolling: true,
-    },
     fs: {
-      allow: ["..", "./client", "./shared"],
+      allow: ["./client", "./shared", "./node_modules"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
-    proxy: {
-      "/api": "https://localhost:8000"
-    }
   },
   build: {
     outDir: "dist/spa",

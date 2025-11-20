@@ -3,53 +3,23 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    // Simulate login logic
+    console.log("Login attempt:", { email, password, rememberMe });
+
     setIsLoading(true);
-
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-    try {
-        const response = await fetch(`${apiUrl}/user/login/`, {
-            method: 'POST', // !!! УБЕДИТЕСЬ, ЧТО МЕТОД - POST !!!
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include', 
-            body: JSON.stringify({ email, password }),
-        });
-
-      const data = await response.json();
-
-      if(response.ok) {
-        console.log("Login success:", data);
-        navigate(`${data.username}/profile/`);
-      } else{
-        console.error("Login error:", data);
-        let errorMessage = "Произошла ошибка при входе";
-        if (data.errors){
-          if (data.errors.non_field_errors) errorMessage = data.errors.non_field_errors[0];
-          else if (data.errors.email) errorMessage = data.errors.email[0];
-          else if (data.errors.password) errorMessage = data.errors.password[0];
-        }
-        setError(errorMessage);
-      }
-    } catch (err) {
-      console.error("Network error:", err);
-      setError("Ошибка соединения с сервером. Скорее всего, Docker не запущен.");
-    } finally {
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      // Redirect to profile after successful login
+      navigate("/profile");
+    }, 500);
   };
 
   return (
@@ -57,12 +27,12 @@ export default function Login() {
       {/* Animated Trophy Emojis */}
       <div className="absolute left-0 top-0 w-full h-full pointer-events-none">
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/34b333cd5a2cde0115a7040304981d564cd61a21?width=708"
+          src="/lev_trophy.webp"
           alt=""
           className="absolute left-0 md:left-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[354px] lg:h-[354px] opacity-90 animate-levitate-active"
         />
         <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/132ed257e685ec41aec2decd1b3a204dc8994b36?width=708"
+          src="/lev_trophy.webp"
           alt=""
           className="absolute right-0 md:right-0 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 lg:w-[354px] lg:h-[354px] opacity-90 animate-levitate-active-slow"
         />

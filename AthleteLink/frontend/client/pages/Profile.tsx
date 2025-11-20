@@ -63,27 +63,29 @@ export default function Profile() {
             </div>
 
             {/* Analytics Icon */}
-            <svg
-              className="w-[21px] h-[20px] opacity-50"
-              viewBox="0 0 21 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M16.03 10C18.305 10 19.25 9.16667 18.41 6.43334C17.8413 4.59167 16.1788 3.00834 14.245 2.46667C11.375 1.66667 10.5 2.56667 10.5 4.73334V7.13334C10.5 9.16667 11.375 10 13.125 10H16.03Z"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M17.5002 12.25C16.6865 16.1083 12.8015 18.9083 8.38274 18.225C5.06649 17.7167 2.39774 15.175 1.85524 12.0167C1.14649 7.82501 4.06899 4.12501 8.10274 3.34167"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <button onClick={() => navigate("/stats")}>
+              <svg
+                className="w-[21px] h-[20px] opacity-50 hover:opacity-100 transition-opacity"
+                viewBox="0 0 21 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.03 10C18.305 10 19.25 9.16667 18.41 6.43334C17.8413 4.59167 16.1788 3.00834 14.245 2.46667C11.375 1.66667 10.5 2.56667 10.5 4.73334V7.13334C10.5 9.16667 11.375 10 13.125 10H16.03Z"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M17.5002 12.25C16.6865 16.1083 12.8015 18.9083 8.38274 18.225C5.06649 17.7167 2.39774 15.175 1.85524 12.0167C1.14649 7.82501 4.06899 4.12501 8.10274 3.34167"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
 
             {/* Medal Icon */}
             <svg
@@ -116,7 +118,7 @@ export default function Profile() {
             </svg>
 
             {/* Messages Icon */}
-            <button onClick={() => navigate('/requests')}>
+            <button onClick={() => navigate("/requests")}>
               <svg
                 className="w-[21px] h-[21px] opacity-50 hover:opacity-100 transition-opacity"
                 viewBox="0 0 21 21"
@@ -164,29 +166,31 @@ export default function Profile() {
             </button>
 
             {/* Settings Icon */}
-            <svg
-              className="w-[21px] h-[22px] opacity-50"
-              viewBox="0 0 21 22"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10.5 13.75C11.9497 13.75 13.125 12.5188 13.125 11C13.125 9.48122 11.9497 8.25 10.5 8.25C9.05025 8.25 7.875 9.48122 7.875 11C7.875 12.5188 9.05025 13.75 10.5 13.75Z"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M1.75 11.8066V10.1933C1.75 9.23998 2.49375 8.45165 3.4125 8.45165C4.99625 8.45165 5.64375 7.27832 4.8475 5.83915C4.3925 5.01415 4.66375 3.94165 5.46 3.46498L6.97375 2.55748C7.665 2.12665 8.5575 2.38332 8.96875 3.10748L9.065 3.28165C9.8525 4.72082 11.1475 4.72082 11.9438 3.28165L12.04 3.10748C12.4513 2.38332 13.3438 2.12665 14.035 2.55748L15.5488 3.46498C16.345 3.94165 16.6163 5.01415 16.1613 5.83915C15.365 7.27832 16.0125 8.45165 17.5963 8.45165C18.5063 8.45165 19.2588 9.23082 19.2588 10.1933V11.8066C19.2588 12.76 18.515 13.5483 17.5963 13.5483C16.0125 13.5483 15.365 14.7216 16.1613 16.1608C16.6163 16.995 16.345 18.0583 15.5488 18.535L14.035 19.4425C13.3438 19.8733 12.4513 19.6166 12.04 18.8925L11.9438 18.7183C11.1563 17.2791 9.86125 17.2791 9.065 18.7183L8.96875 18.8925C8.5575 19.6166 7.665 19.8733 6.97375 19.4425L5.46 18.535C4.66375 18.0583 4.3925 16.9858 4.8475 16.1608C5.64375 14.7216 4.99625 13.5483 3.4125 13.5483C2.49375 13.5483 1.75 12.76 1.75 11.8066Z"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <button onClick={() => navigate("/settings")}>
+              <svg
+                className="w-[21px] h-[22px] opacity-50 hover:opacity-100 transition-opacity"
+                viewBox="0 0 21 22"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10.5 13.75C11.9497 13.75 13.125 12.5188 13.125 11C13.125 9.48122 11.9497 8.25 10.5 8.25C9.05025 8.25 7.875 9.48122 7.875 11C7.875 12.5188 9.05025 13.75 10.5 13.75Z"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M1.75 11.8066V10.1933C1.75 9.23998 2.49375 8.45165 3.4125 8.45165C4.99625 8.45165 5.64375 7.27832 4.8475 5.83915C4.3925 5.01415 4.66375 3.94165 5.46 3.46498L6.97375 2.55748C7.665 2.12665 8.5575 2.38332 8.96875 3.10748L9.065 3.28165C9.8525 4.72082 11.1475 4.72082 11.9438 3.28165L12.04 3.10748C12.4513 2.38332 13.3438 2.12665 14.035 2.55748L15.5488 3.46498C16.345 3.94165 16.6163 5.01415 16.1613 5.83915C15.365 7.27832 16.0125 8.45165 17.5963 8.45165C18.5063 8.45165 19.2588 9.23082 19.2588 10.1933V11.8066C19.2588 12.76 18.515 13.5483 17.5963 13.5483C16.0125 13.5483 15.365 14.7216 16.1613 16.1608C16.6163 16.995 16.345 18.0583 15.5488 18.535L14.035 19.4425C13.3438 19.8733 12.4513 19.6166 12.04 18.8925L11.9438 18.7183C11.1563 17.2791 9.86125 17.2791 9.065 18.7183L8.96875 18.8925C8.5575 19.6166 7.665 19.8733 6.97375 19.4425L5.46 18.535C4.66375 18.0583 4.3925 16.9858 4.8475 16.1608C5.64375 14.7216 4.99625 13.5483 3.4125 13.5483C2.49375 13.5483 1.75 12.76 1.75 11.8066Z"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -205,7 +209,10 @@ export default function Profile() {
 
             <div className="flex items-center gap-4">
               {/* Search */}
-              <div className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center">
+              <button
+                onClick={() => navigate("/find-requests")}
+                className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center hover:bg-white/70 transition-colors"
+              >
                 <svg
                   className="w-[22px] h-[22px]"
                   viewBox="0 0 22 22"
@@ -218,7 +225,7 @@ export default function Profile() {
                     fillOpacity="0.6"
                   />
                 </svg>
-              </div>
+              </button>
 
               {/* Stats */}
               <div className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center relative">
@@ -260,7 +267,7 @@ export default function Profile() {
 
               {/* Profile Picture */}
               <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/000c31178b1986558f577f90ead0f3bed101a8c7?width=94"
+                src="/placeholder_avatar.jpg"
                 alt="Profile"
                 className="w-[47px] h-[44px] rounded-[10px]"
               />
@@ -270,10 +277,10 @@ export default function Profile() {
           {/* Profile Card */}
           <div className="rounded-[10px] overflow-hidden ">
             {/* Header Section */}
-            <div className="h-[88px] bg-gradient-to-r from-[#878DB3] to-[#001AFF]/30 opacity-50 relative ">
+            <div className="h-[88px] bg-gradient-to-r from-[#878DB3] to-[#001AFF]/30 relative ">
               <div className="flex items-center px-7 py-8 gap-6">
                 <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/344dcf4b50f86e9e2496c7dbc315e853b4b8c063?width=178"
+                  src="/placeholder_avatar.jpg"
                   alt={fullName}
                   className="w-[89px] h-[86px] rounded-full absolute left-7 top-[100px] mt-6"
                 />

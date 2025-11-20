@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect } from "react";
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -26,7 +25,7 @@ export default function Index() {
             Зарегистрироваться
           </button>
           <button
-            onClick={() => navigate("/user/login")}
+            onClick={() => navigate("/login")}
             className="text-white text-sm md:text-base font-medium hover:opacity-80 transition-opacity capitalize"
           >
             Войти
@@ -39,14 +38,12 @@ export default function Index() {
         {/* Animated Emojis */}
         <div className="absolute left-0 top-0 w-full h-full pointer-events-none">
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/ed420d055f83f356d1d4405b160694007d20f42b?width=359"
-            alt=""
+            src="/lev_biceps.png"
             className="absolute left-[5%] top-[10%] w-[135px] h-[135px] md:w-[173px] md:h-[173px] lg:w-[215px] lg:h-[215px] opacity-50 animate-levitate-slow"
             style={{ transform: "rotate(15deg)" }}
           />
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/2f61dedd682c4d06168644072d1b811c3293c85f?width=440"
-            alt=""
+            src="/lev_medal.png"
             className="absolute right-[5%] top-[15%] w-[154px] h-[154px] md:w-[211px] md:h-[211px] lg:w-[264px] lg:h-[264px] opacity-50 animate-levitate"
             style={{ transform: "rotate(15deg)" }}
           />
@@ -97,8 +94,7 @@ export default function Index() {
           </div>
           <div className="flex-1 w-full">
             <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/64314cf74d3f56affe006eb956bcdc4c4ba21636?width=1176"
-              alt="Rating system badges"
+              src="/prev_ranks.png"
               className="w-full h-auto rounded-2xl"
             />
           </div>
@@ -123,8 +119,7 @@ export default function Index() {
           </div>
           <div className="flex-1 w-full">
             <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/a32bf03ccb6f863c80283e13e2781ad7720e97d5?width=1088"
-              alt="Various sports equipment"
+              src="/prev_sport.jpg"
               className="w-full h-auto rounded-2xl"
             />
           </div>
@@ -146,8 +141,7 @@ export default function Index() {
           </div>
           <div className="flex-1 w-full">
             <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/7dc366bed193d36065f792a834dce61542446d60?width=1152"
-              alt="Group of friends playing sports"
+              src="/prev_peop.jpg"
               className="w-full h-auto rounded-2xl"
             />
           </div>
@@ -158,13 +152,11 @@ export default function Index() {
       <section className="relative px-8 md:px-16 py-20 md:py-32 flex flex-col items-center gap-12 overflow-hidden">
         <div className="absolute left-0 bottom-0 w-full h-full pointer-events-none">
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/0f230993c9972b2c1cef3d0c6ba8f3373d0bfd3e?width=408"
-            alt=""
+            src="/lev_pawn.png"
             className="absolute left-[2%] bottom-[10%] w-[154px] h-[154px] md:w-[230px] md:h-[230px] lg:w-[245px] lg:h-[245px] opacity-50"
           />
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/1b43863a383341ee852ae23b137c92a173c40398?width=410"
-            alt=""
+            src="/lev_basket.png"
             className="absolute right-[2%] bottom-[10%] w-[154px] h-[154px] md:w-[230px] md:h-[230px] lg:w-[246px] lg:h-[246px] opacity-50"
           />
         </div>
@@ -205,34 +197,6 @@ export default function Index() {
           Copyright Team Layar, 2025.
         </p>
       </footer>
-
-      {/* Modal/Alert for button clicks (optional) */}
-      {activeSection && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setActiveSection(null)}
-        >
-          <div className="bg-[#312900] border-2 border-[#493D02] rounded-2xl p-8 max-w-md w-full">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              {activeSection === "register" && "Регистрация"}
-              {activeSection === "login" && "Вход"}
-              {activeSection === "find-event" && "Поиск мероприятий"}
-              {activeSection === "new-user" && "Добро пожаловать!"}
-              {activeSection === "existing-user" && "С возвращением!"}
-            </h3>
-            <p className="text-white/80 mb-6">
-              Эта функция в разработке. Скоро здесь появится полноценный
-              функционал!
-            </p>
-            <button
-              onClick={() => setActiveSection(null)}
-              className="w-full px-6 py-3 bg-[#493D02] text-white rounded-xl border border-black font-medium hover:bg-[#5a4a02] transition-colors"
-            >
-              Закрыть
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

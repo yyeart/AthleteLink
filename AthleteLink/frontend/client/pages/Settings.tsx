@@ -1,83 +1,50 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface Request {
-  id: number;
-  eventName: string;
-  date: string;
-  sport: string;
-  applicationStatus: string;
-  gameResult: string;
-  resultColor: "gray" | "black" | "green" | "red";
-}
-
-export default function Requests() {
+export default function Settings() {
   const navigate = useNavigate();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [secretQuestionAnswer, setSecretQuestionAnswer] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [selectedSecretQuestion, setSelectedSecretQuestion] = useState("");
+  const [secretAnswer, setSecretAnswer] = useState("");
+  const [showQuestionDropdown, setShowQuestionDropdown] = useState(false);
 
-  const requests: Request[] = [
-    {
-      id: 1,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Одобрена",
-      gameResult: "Н/Д",
-      resultColor: "gray",
-    },
-    {
-      id: 2,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Отклонена",
-      gameResult: "Н/Д",
-      resultColor: "gray",
-    },
-    {
-      id: 3,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Отменена",
-      resultColor: "black",
-    },
-    {
-      id: 4,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Победа",
-      resultColor: "green",
-    },
-    {
-      id: 5,
-      eventName: "Lorem Ipsum Cup #1",
-      date: "15.10.2025, 14:50",
-      sport: "Волейбол",
-      applicationStatus: "Завершена",
-      gameResult: "Поражение",
-      resultColor: "red",
-    },
+  const secretQuestions = [
+    "Имя вашего первого питомца?",
+    "Название вашей первой школы?",
+    "Девичья фамилия матери?",
+    "Ваш любимый город?",
   ];
 
-  const getResultCircleColor = (color: string) => {
-    switch (color) {
-      case "gray":
-        return "bg-[#848484]";
-      case "black":
-        return "bg-black";
-      case "green":
-        return "bg-[#48FF55]/38";
-      case "red":
-        return "bg-[#FF7B7B]/57";
-      default:
-        return "bg-gray-400";
+  const handleChangePassword = () => {
+    console.log("Changing password...");
+  };
+
+  const handleSaveSecretQuestion = () => {
+    console.log("Saving secret question...");
+  };
+
+  const handleDeleteAccount = () => {
+    const confirmed = window.confirm(
+      "Вы уверены, что хотите удалить учетную запись? Это действие необратимо.",
+    );
+    if (confirmed) {
+      console.log("Deleting account...");
+      navigate("/");
+    }
+  };
+
+  const handleLogout = () => {
+    const confirmed = window.confirm("Вы действительно хотите выйти?");
+    if (confirmed) {
+      console.log("Logging out...");
+      navigate("/");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02]">
       <div className="flex h-screen">
         {/* Sidebar */}
         <div className="w-[76px] border-r-2 border-[#5F5C5C] relative flex flex-col items-center pt-8 gap-12">
@@ -86,7 +53,7 @@ export default function Requests() {
             {/* Dashboard Icon */}
             <button onClick={() => navigate("/profile")}>
               <svg
-                className="w-[21px] h-[22px] opacity-50 mt-10"
+                className="w-[21px] h-[22px] opacity-50 hover:opacity-100 transition-opacity mt-10"
                 viewBox="0 0 21 22"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -165,11 +132,10 @@ export default function Requests() {
               />
             </svg>
 
-            {/* Messages Icon - Active */}
-            <div className="relative">
-              <div className="absolute left-0 top-0 w-[76px] h-[50px] bg-gradient-to-r from-[#4182F9]/50 to-[#4182F9]/0 -ml-10 mt-[-0.99rem]"></div>
+            {/* Messages Icon */}
+            <button onClick={() => navigate("/requests")}>
               <svg
-                className="w-[21px] h-[21px] relative z-10"
+                className="w-[21px] h-[21px] opacity-50 hover:opacity-100 transition-opacity"
                 viewBox="0 0 21 21"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -212,12 +178,13 @@ export default function Requests() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </div>
+            </button>
 
-            {/* Settings Icon */}
-            <button onClick={() => navigate("/settings")}>
+            {/* Settings Icon - Active */}
+            <div className="relative">
+              <div className="absolute left-0 top-0 w-[76px] h-[50px] bg-gradient-to-r from-[#4182F9]/50 to-[#4182F9]/0 -ml-10 mt-[-0.99rem]"></div>
               <svg
-                className="w-[21px] h-[22px] opacity-50 hover:opacity-100 transition-opacity"
+                className="w-[21px] h-[22px] relative z-10"
                 viewBox="0 0 21 22"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -239,7 +206,7 @@ export default function Requests() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </button>
+            </div>
           </div>
         </div>
 
@@ -327,87 +294,155 @@ export default function Requests() {
             </div>
           </div>
 
-          {/* Requests Section */}
-          <div className="rounded-[10px] bg-[#DDD]/50 p-8 min-h-[918px]">
-            <h2 className="text-black text-[50px] font-light text-center mb-8">
-              Текущие заявки
+          {/* Settings Card */}
+          <div className="rounded-[10px] bg-white/50 p-8 relative min-h-[748px]">
+            {/* Password Change Section */}
+            <h2 className="text-black text-4xl font-bold mb-6">Смена пароля</h2>
+
+            <div className="flex flex-col gap-4 mb-6">
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Ваш текущий пароль"
+                className="w-full max-w-[526px] h-[46px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
+              />
+
+              <input
+                type="text"
+                value={secretQuestionAnswer}
+                onChange={(e) => setSecretQuestionAnswer(e.target.value)}
+                placeholder="Ответ на секретный вопрос:"
+                className="w-full max-w-[526px] h-[45px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-[15px] outline-none placeholder:text-black/40"
+              />
+
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Ваш новый пароль"
+                className="w-full max-w-[526px] h-[45px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
+              />
+            </div>
+
+            <p className="text-black text-base opacity-80 mb-6 max-w-[526px]">
+              Требования: не менее 8 символов, не менее 1 заглавной буквы, не
+              менее 1 строчной буквы, не менее 1 цифры
+            </p>
+
+            <button
+              onClick={handleChangePassword}
+              className="w-[217px] h-[38px] rounded-lg bg-[#4182F9] text-white text-base text-center mb-20"
+            >
+              Изменить пароль
+            </button>
+
+            {/* Secret Question Section */}
+            <h2 className="text-black text-4xl font-bold mb-2">
+              Секретный вопрос
             </h2>
 
-            {/* Requests List */}
-            <div className="space-y-5">
-              {requests.map((request) => (
-                <div
-                  key={request.id}
-                  className="border-[3px] border-black rounded-[50px] p-6 flex items-center justify-between backdrop-blur-sm relative overflow-hidden"
-                  style={{
-                    background:
-                      "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
-                    mixBlendMode: "plus-darker",
-                  }}
-                >
-                  <div
-                    className="absolute inset-0 -z-10 rounded-[50px]"
-                    style={{
-                      backgroundImage:
-                        "url('https://cdn.builder.io/api/v1/image/assets%2F9b4b6868ed8d4ab0841339e996a44e0f%2F29814a62ea5a4dbaab3e007976816fb6?format=webp&width=800')",
-                      backgroundSize: "250px 250px",
-                      backgroundPosition: "0 0",
-                      backgroundRepeat: "repeat",
-                      opacity: 0.05,
-                    }}
-                  ></div>
-                  {/* Left Side - Event Info */}
-                  <div className="flex-1 relative z-10">
-                    <h3 className="text-black text-4xl font-light mb-3">
-                      {request.eventName}
-                    </h3>
-                    <div className="flex items-center gap-3">
-                      <div className="border-[3px] border-black rounded-[50px] px-5 py-2">
-                        <span className="text-black text-base font-light">
-                          {request.date}
-                        </span>
-                      </div>
-                      <div className="border-[3px] border-black rounded-[50px] px-5 py-1.5">
-                        <span className="text-black text-base font-light">
-                          {request.sport}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+            <p className="text-black text-base opacity-80 mb-6">
+              Текущий секретный вопрос: не установлен.
+            </p>
 
-                  {/* Right Side - Status Info */}
-                  <div className="border-[3px] border-black rounded-[50px] px-8 py-4 min-w-[466px] relative z-10">
-                    <div className="space-y-3">
-                      {/* Application Status */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-black text-2xl font-light">
-                          Статус заявки
-                        </span>
-                        <span className="text-black text-2xl font-light">
-                          {request.applicationStatus}
-                        </span>
-                      </div>
-                      {/* Game Result */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-black text-2xl font-light">
-                          Результат игры
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-[23px] h-[23px] rounded-full border border-black ${getResultCircleColor(
-                              request.resultColor,
-                            )}`}
-                          ></div>
-                          <span className="text-black text-2xl font-light">
-                            {request.gameResult}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+            <div className="space-y-4 mb-6 relative">
+              <div className="relative w-full max-w-[526px]">
+                <input
+                  type="text"
+                  value={selectedSecretQuestion}
+                  onChange={(e) => setSelectedSecretQuestion(e.target.value)}
+                  onClick={() => setShowQuestionDropdown(!showQuestionDropdown)}
+                  placeholder="Выберите вопрос из списка"
+                  className="w-full h-[46px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40 pr-12"
+                  readOnly
+                />
+                <button
+                  onClick={() => setShowQuestionDropdown(!showQuestionDropdown)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                >
+                  <svg
+                    className="w-[22px] h-[21px] opacity-50"
+                    viewBox="0 0 22 21"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18.2602 7.83124L12.2836 13.5362C11.5777 14.21 10.4227 14.21 9.7169 13.5362L3.74023 7.83124"
+                      stroke="#292D32"
+                      strokeWidth="1.5"
+                      strokeMiterlimit="10"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                {showQuestionDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-black/10 rounded-lg shadow-xl overflow-hidden">
+                    {secretQuestions.map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedSecretQuestion(question);
+                          setShowQuestionDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 text-black hover:bg-[#F9F9F9] transition-colors"
+                      >
+                        {question}
+                      </button>
+                    ))}
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
+
+              <input
+                type="text"
+                value={secretAnswer}
+                onChange={(e) => setSecretAnswer(e.target.value)}
+                placeholder="Введите ответ"
+                className="w-full max-w-[526px] h-[46px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
+              />
             </div>
+
+            <div className="flex gap-4 items-center  mb-6">
+              <button
+                onClick={handleSaveSecretQuestion}
+                className="w-[217px] h-[38px] rounded-lg bg-[#4182F9] text-white text-base text-center"
+              >
+                Сохранить
+              </button>
+            </div>
+
+            <div className="flex gap-4 items-center justify-end mb-6">
+              <button
+                onClick={handleLogout}
+                className="w-[257px] h-[38px] rounded-lg bg-[#B52626] text-white text-base text-center"
+              >
+                Выйти
+              </button>
+            </div>
+
+            <div className="flex gap-4 items-center justify-end ">
+              <button
+                onClick={handleDeleteAccount}
+                className="w-[257px] h-[38px] rounded-lg bg-[#B52626] text-white text-base text-center"
+              >
+                Удалить учетную запись
+              </button>
+            </div>
+
+            <div className="flex justify-between items-end">
+              <p className="text-black text-base opacity-80">
+                App Version: 0.1 Alphadev 13.10.25
+              </p>
+            </div>
+
+            {/* Levitating MAI Logo */}
+            <img
+              src="https://api.builder.io/api/v1/image/assets/TEMP/a03e799eec89d8338d3085630ed1da2e8aeda771?width=734"
+              alt="MAI Logo"
+              className="absolute right-8 top-[280px] w-[367px] h-[354px] object-contain animate-levitate-active"
+            />
           </div>
         </div>
       </div>
