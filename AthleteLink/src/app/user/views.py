@@ -1,45 +1,52 @@
+import json
+import random
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.conf import settings
-import random
-
+from django.views.decorators.csrf import csrf_exempt
 from .forms import UserRegistrationForm, UserLoginForm
-from .models import User
 
+def get_data(request):
+    try:
+        return json.loads(request.body)
+    except (json.JSONDecodeError, TypeError):
+        return request.POST.dict()
+
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        entered_code = request.POST.get('verification_code')
+        data = get_data(request)
+        entered_code = data.get('verification_code')
         real_code = request.session.get('verification_code')
-
         if entered_code != real_code:
             messages.error(request, 'Неверный код подтверждения')
             return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
         
+        form = UserRegistrationForm(data)
+   
         if form.is_valid():
             user = form.save(commit=False)
             user.save()
             login(request, user)
-            messages.success(request, 'Вы успешно зарегистрировались!')
-            print(form.data.get('email'), form.data.get('password'))
-            return redirect('profile:detail', username=request.user.username)
-    else:
-        form = UserRegistrationForm()
+            return JsonResponse({'message': 'Вы успешно зарегистрировались!', 'username': user.username})
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    return JsonResponse({'error': 'Используйте POST запрос!'}, status=405)
 
-    return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
-
+@csrf_exempt
 def send_verification_code(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        data = get_data(request)
+        email = data.get('email')
         if not email:
             return JsonResponse({'error': 'Введите email'}, status=400)
         
         code = random.randint(100000, 999999)
         request.session['verification_code'] = str(code)
-
+        request.session.modified = True
         try:
             send_mail(
                 'AthleteLink - код подтверждения',
@@ -55,9 +62,11 @@ def send_verification_code(request):
     
     return JsonResponse({'error': 'Ожидание запроса'}, status=405)
 
+@csrf_exempt
 def user_login(request):
     if request.method == 'POST':
-        form = UserLoginForm(request.POST)
+        data = get_data(request)
+        form = UserLoginForm(data)
         if form.is_valid():
             username_or_email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
@@ -65,17 +74,18 @@ def user_login(request):
 
             if user:
                 login(request, user)
-                messages.success(request, f'Добро пожаловать, {user.first_name}!')
-                return redirect('profile:detail', username=request.user.username)
+                return JsonResponse({
+                    'message': f'Добро пожаловать, {user.first_name}!',
+                    'username': user.username
+                })
             else:
-                messages.error(request, 'Неверный логин или пароль')
-                return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
-    else:
-        form = UserLoginForm()
+                return JsonResponse({'errors': {'non_field_errors': ['Неверный логин или пароль']}}, status=400)
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
 
-    return render(request, 'user/login.html', {'form': form, 'page_name': 'Войти в аккаунт'})
+    return JsonResponse({'error': 'Используйте POST запрос'}, status=405)
 
+@csrf_exempt
 def user_logout(request):
     logout(request)
-    messages.success(request, 'Вы успешно вышли из аккаунта')
-    return redirect('pages:home')
+    return JsonResponse({'message': 'Вы успешно вышли из аккаунта'})
