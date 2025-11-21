@@ -33,7 +33,7 @@ export default function Login() {
 
       if(response.ok) {
         console.log("Login success:", data);
-        navigate(`${data.username}/profile/`);
+        navigate(`/${data.username}/profile/`);
       } else{
         console.error("Login error:", data);
         let errorMessage = "Произошла ошибка при входе";
