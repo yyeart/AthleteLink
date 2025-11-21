@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,53 +22,33 @@ export default function Register() {
   const [birthdate, setBirthdate] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [city, setCity] = useState("");
+  // UI states
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-
+  
   const datePickerRef = useRef<HTMLDivElement>(null);
   const cityDropdownRef = useRef<HTMLDivElement>(null);
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        datePickerRef.current &&
-        !datePickerRef.current.contains(event.target as Node)
-      ) {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
         setShowDatePicker(false);
       }
-      if (
-        cityDropdownRef.current &&
-        !cityDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
         setShowCityDropdown(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const validateDate = (dateStr: string): boolean => {
-    const dateRegex =
-      /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d{2}$/;
-    if (!dateRegex.test(dateStr)) {
-      return false;
-    }
-
+    const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d{2}$/;
+    if (!dateRegex.test(dateStr)) return false;
     const [day, month, year] = dateStr.split(".").map(Number);
     const date = new Date(year, month - 1, day);
-
-    if (
-      date.getFullYear() !== year ||
-      date.getMonth() !== month - 1 ||
-      date.getDate() !== day
-    ) {
-      return false;
-    }
-
-    return true;
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -83,10 +64,9 @@ export default function Register() {
     setShowCityDropdown(false);
   };
 
-  const handleContinueStep1 = async (e: React.FormEvent) => {
+  const handleContinueStep1 = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate step 1
     if (!username || !email || !password || !confirmPassword) {
       alert("Пожалуйста, заполните все поля!");
       return;
@@ -97,12 +77,7 @@ export default function Register() {
       return;
     }
 
-    // Simulate AJAX call
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep(2);
-    }, 500);
+    setStep(2);
   };
 
   const handleRegisterStep2 = async (e: React.FormEvent) => {
@@ -122,13 +97,55 @@ export default function Register() {
       return;
     }
 
-    // Simulate AJAX call for final registration
     setIsLoading(true);
-    setTimeout(() => {
+    
+    const [day, month, year] = birthdate.split(".");
+    const formattedDate = `${year}-${month}-${day}`;
+
+    const payload = {
+      username,
+      email,
+      password,
+      password_confirm: confirmPassword,
+      first_name: fullName,             
+      telegram,
+      birth_date: formattedDate,
+      city,
+    };
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+    try {
+      const response = await fetch(`${apiUrl}/user/register/`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if(response.ok) {
+        console.log("Registration complete:", data);
+        navigate(`/${data.username}/profile/`);
+      } else {
+        console.error("Registration failed:", data);
+        let errorMsg = "Ошибка регистрации:\n";
+        if (data.errors) {
+             Object.entries(data.errors).forEach(([field, msgs]: [string, any]) => {
+                errorMsg += `${field}: ${msgs.join(', ')}\n`;
+             });
+        } else {
+             errorMsg += "Произошла неизвестная ошибка";
+        }
+        alert(errorMsg);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      alert("Ошибка соединения с сервером. Проверье соединение с интернетом или статус сервера.");
+    } finally {
       setIsLoading(false);
-      // Registration complete - redirect to profile
-      navigate(`/${username}/profile`);
-    }, 500);
+    }
   };
 
   const handleBackToStep1 = () => {
@@ -219,26 +236,9 @@ export default function Register() {
                       disabled={isLoading}
                       className="w-4 h-4 flex items-center justify-center"
                     >
-                      <svg
-                        width="16"
-                        height="11"
-                        viewBox="0 0 16 11"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z"
-                          fill="#BEBEBE"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z"
-                          fill="#BEBEBE"
-                          transform="translate(5, 5)"
-                        />
+                       <svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z" fill="#BEBEBE"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z" fill="#BEBEBE" transform="translate(5, 5)"/>
                       </svg>
                     </button>
                   </div>
@@ -263,32 +263,13 @@ export default function Register() {
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       disabled={isLoading}
                       className="w-4 h-4 flex items-center justify-center"
                     >
-                      <svg
-                        width="16"
-                        height="11"
-                        viewBox="0 0 16 11"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z"
-                          fill="#BEBEBE"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z"
-                          fill="#BEBEBE"
-                          transform="translate(5, 5)"
-                        />
+                      <svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z" fill="#BEBEBE"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z" fill="#BEBEBE" transform="translate(5, 5)"/>
                       </svg>
                     </button>
                   </div>
@@ -360,86 +341,11 @@ export default function Register() {
                       disabled={isLoading}
                       className="flex-shrink-0 text-white/50 hover:text-white transition-colors disabled:opacity-50"
                     >
-                      <svg
-                        className="w-5 h-5"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M6.66667 1.66667V4.16667"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M13.3333 1.66667V4.16667"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M2.91667 7.575H17.0833"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M17.5 7.08333V14.1667C17.5 16.6667 16.25 18.3333 13.3333 18.3333H6.66667C3.75 18.3333 2.5 16.6667 2.5 14.1667V7.08333C2.5 4.58333 3.75 2.91667 6.66667 2.91667H13.3333C16.25 2.91667 17.5 4.58333 17.5 7.08333Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M13.0788 11.4167H13.0863"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M13.0788 13.9167H13.0863"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M9.99607 11.4167H10.0036"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M9.99607 13.9167H10.0036"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M6.91209 11.4167H6.91957"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M6.91209 13.9167H6.91957"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
+                      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.66667 1.66667V4.16667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M13.3333 1.66667V4.16667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M2.91667 7.575H17.0833" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M17.5 7.08333V14.1667C17.5 16.6667 16.25 18.3333 13.3333 18.3333H6.66667C3.75 18.3333 2.5 16.6667 2.5 14.1667V7.08333C2.5 4.58333 3.75 2.91667 6.66667 2.91667H13.3333C16.25 2.91667 17.5 4.58333 17.5 7.08333Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </button>
                     <input
@@ -491,38 +397,18 @@ export default function Register() {
                       disabled={isLoading}
                       className="flex-shrink-0 text-white/50 hover:text-white transition-colors disabled:opacity-50"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.28 5.96667L8.9333 10.3133C8.41997 10.8267 7.57997 10.8267 7.06664 10.3133L2.71997 5.96667"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
+                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.28 5.96667L8.9333 10.3133C8.41997 10.8267 7.57997 10.8267 7.06664 10.3133L2.71997 5.96667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </button>
                   </div>
                 </div>
                 {showCityDropdown && (
                   <div className="absolute z-50 mt-2 w-full bg-black border border-[#212121] rounded-lg shadow-xl overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => handleCitySelect("Москва")}
-                      className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors"
-                    >
+                    <button type="button" onClick={() => handleCitySelect("Москва")} className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors">
                       Москва
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCitySelect("Санкт-Петербург")}
-                      className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors"
-                    >
+                    <button type="button" onClick={() => handleCitySelect("Санкт-Петербург")} className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors">
                       Санкт-Петербург
                     </button>
                   </div>
@@ -553,7 +439,10 @@ export default function Register() {
           {/* Login Link */}
           <p className="text-center text-white/25 text-[13px] mt-6">
             Уже зарегистрированы?{" "}
-            <Link to="/login" className="hover:text-white/40 transition-colors">
+            <Link
+              to="/login"
+              className="hover:text-white/40 transition-colors"
+            >
               Войти
             </Link>
           </p>

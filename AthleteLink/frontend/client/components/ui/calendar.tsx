@@ -1,13 +1,16 @@
 // components/Calendar.tsx
 import * as React from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, Matcher } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // обязательно подключи стили
 
 export interface CalendarProps {
-  selected?: Date;
-  onSelect?: (date: Date | undefined) => void;
+  selected?: Date | Date[] | { from: Date; to: Date };
+  onSelect?: (date: Date | Date[] | { from: Date; to: Date } | undefined) => void;
   mode?: "single" | "multiple" | "range";
   defaultMonth?: Date;
+  // Добавляем новые пропсы
+  disabled?: Matcher | Matcher[];
+  initialFocus?: boolean;
 }
 
 export function Calendar({
@@ -15,14 +18,18 @@ export function Calendar({
   onSelect,
   mode = "single",
   defaultMonth,
+  disabled,
+  initialFocus = false, // по умолчанию false, если не передан
 }: CalendarProps) {
   return (
     <div className="p-4 rounded-md border bg-white shadow-md">
       <DayPicker
         mode={mode}
-        selected={selected}
-        onSelect={onSelect}
+        selected={selected as any} // Временно отключаем проверку типов
+        onSelect={onSelect as any} // Временно отключаем проверку типов
         defaultMonth={defaultMonth}
+        disabled={disabled} // передаём disabled
+        initialFocus={initialFocus} // передаём initialFocus
         showOutsideDays
         weekStartsOn={0} // воскресенье
         styles={{

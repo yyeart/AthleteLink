@@ -19,12 +19,12 @@ def get_data(request):
 def register(request):
     if request.method == 'POST':
         data = get_data(request)
-        entered_code = data.get('verification_code')
-        real_code = request.session.get('verification_code')
-        if entered_code != real_code:
-            messages.error(request, 'Неверный код подтверждения')
-            return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
-        
+        # entered_code = data.get('verification_code')
+        # real_code = request.session.get('verification_code')
+        # if entered_code != real_code:
+        #     messages.error(request, 'Неверный код подтверждения')
+        #     return render(request, 'user/register.html', {'form': form, 'page_name': 'Регистрация в AthleteLink'})
+        # ПОКА БЕЗ ЭТОГО ЛАДНО?)?)?))?
         form = UserRegistrationForm(data)
    
         if form.is_valid():
