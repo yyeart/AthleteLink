@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from rest_framework import generics, permissions
+from .models import ActivityRequest
+from .serializers import RequestListSerializer
 
-def requests_page(request):
-    return render(request, 'requests/requests_page.html')
+class RequestListAPIView(generics.ListAPIView):
+    serializer_class = RequestListSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-def create_request_page(request):
-    ...
+    def get_queryset(self):
+        return ActivityRequest.objects.filter(user=self.request.user)
