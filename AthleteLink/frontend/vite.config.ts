@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     root: "./",
     fs: {
-      allow: ["./client", "./shared", "./node_modules", "/app"],
+      allow: ["..", "./client", "./shared", "./node_modules", "/app"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
   },
