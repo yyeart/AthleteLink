@@ -244,11 +244,16 @@ export default function Settings() {
               </button>
 
               {/* Stats */}
-              <div className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center relative">
-                <div className="w-[7px] h-[20px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-3 top-[13px]"></div>
-                <div className="w-[7px] h-[11px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-[19px] top-[22px]"></div>
-                <div className="w-[7px] h-[16px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-[26px] top-[17px]"></div>
-              </div>
+              <button
+                onClick={() => navigate("/leaderboard")}
+                className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center hover:bg-white/70 transition-colors"
+              >
+                <div className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center relative">
+                  <div className="w-[7px] h-[20px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-3 top-[13px]"></div>
+                  <div className="w-[7px] h-[11px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-[19px] top-[22px]"></div>
+                  <div className="w-[7px] h-[16px] border-[0.3px] border-black bg-[#D9D9D9] absolute left-[26px] top-[17px]"></div>
+                </div>
+              </button>
 
               {/* Notifications */}
               <div className="w-[46px] h-[45px] rounded-[10px] bg-white/50 flex items-center justify-center">

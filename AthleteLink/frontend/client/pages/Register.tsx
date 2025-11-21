@@ -6,7 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 export default function Register() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Step 1 fields
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   // Step 2 fields
   const [fullName, setFullName] = useState("");
   const [telegram, setTelegram] = useState("");
@@ -26,15 +26,21 @@ export default function Register() {
 
   const datePickerRef = useRef<HTMLDivElement>(null);
   const cityDropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target as Node)
+      ) {
         setShowDatePicker(false);
       }
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+      if (
+        cityDropdownRef.current &&
+        !cityDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowCityDropdown(false);
       }
     };
@@ -44,15 +50,20 @@ export default function Register() {
   }, []);
 
   const validateDate = (dateStr: string): boolean => {
-    const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d{2}$/;
+    const dateRegex =
+      /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d{2}$/;
     if (!dateRegex.test(dateStr)) {
       return false;
     }
 
-    const [day, month, year] = dateStr.split('.').map(Number);
+    const [day, month, year] = dateStr.split(".").map(Number);
     const date = new Date(year, month - 1, day);
 
-    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) {
       return false;
     }
 
@@ -74,18 +85,18 @@ export default function Register() {
 
   const handleContinueStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate step 1
     if (!username || !email || !password || !confirmPassword) {
       alert("Пожалуйста, заполните все поля!");
       return;
     }
-    
+
     if (password !== confirmPassword) {
       alert("Пароли не совпадают!");
       return;
     }
-    
+
     // Simulate AJAX call
     setIsLoading(true);
     setTimeout(() => {
@@ -105,7 +116,9 @@ export default function Register() {
 
     // Validate birthdate format
     if (!validateDate(birthdate)) {
-      alert("Пожалуйста, введите корректную дату рождения в формате ДД.ММ.ГГГГ");
+      alert(
+        "Пожалуйста, введите корректную дату рождения в формате ДД.ММ.ГГГГ",
+      );
       return;
     }
 
@@ -114,7 +127,7 @@ export default function Register() {
     setTimeout(() => {
       setIsLoading(false);
       // Registration complete - redirect to profile
-      navigate("/profile");
+      navigate(`/${username}/profile`);
     }, 500);
   };
 
@@ -206,9 +219,26 @@ export default function Register() {
                       disabled={isLoading}
                       className="w-4 h-4 flex items-center justify-center"
                     >
-                      <svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z" fill="#BEBEBE"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z" fill="#BEBEBE" transform="translate(5, 5)"/>
+                      <svg
+                        width="16"
+                        height="11"
+                        viewBox="0 0 16 11"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z"
+                          fill="#BEBEBE"
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z"
+                          fill="#BEBEBE"
+                          transform="translate(5, 5)"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -233,13 +263,32 @@ export default function Register() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       disabled={isLoading}
                       className="w-4 h-4 flex items-center justify-center"
                     >
-                      <svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z" fill="#BEBEBE"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z" fill="#BEBEBE" transform="translate(5, 5)"/>
+                      <svg
+                        width="16"
+                        height="11"
+                        viewBox="0 0 16 11"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M16 5.5C16 5.5 13 0 8 0C3 0 0 5.5 0 5.5C0 5.5 3 11 8 11C13 11 16 5.5 16 5.5ZM1.173 5.5C1.65652 6.23488 2.21265 6.91931 2.83301 7.543C4.12 8.832 5.88 10 8 10C10.12 10 11.879 8.832 13.168 7.543C13.7884 6.91931 14.3445 6.23487 14.828 5.5C14.3445 4.76512 13.7884 4.08068 13.168 3.457C11.879 2.168 10.119 1 8 1C5.88 1 4.121 2.168 2.832 3.457C2.21164 4.08069 1.65551 4.76513 1.172 5.50001L1.173 5.5Z"
+                          fill="#BEBEBE"
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M3.5 1C2.11929 1 1 2.11928 1 3.49999C0.999996 4.8807 2.11928 5.99999 3.49999 6C4.8807 6 5.99999 4.88072 5.99999 3.50001C6 2.1193 4.88072 1.00001 3.50001 1H3.5ZM0 3.5C0 2.24957 0.667096 1.09413 1.75 0.468912C2.8329 -0.156303 4.16709 -0.156304 5.25 0.46891C6.3329 1.09412 7 2.24957 7 3.5C7 4.75043 6.3329 5.90587 5.25 6.53109C4.1671 7.1563 2.8329 7.1563 1.75 6.53109C0.667097 5.90587 0 4.75043 0 3.5V3.5Z"
+                          fill="#BEBEBE"
+                          transform="translate(5, 5)"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -311,17 +360,86 @@ export default function Register() {
                       disabled={isLoading}
                       className="flex-shrink-0 text-white/50 hover:text-white transition-colors disabled:opacity-50"
                     >
-                      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.66667 1.66667V4.16667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M13.3333 1.66667V4.16667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M2.91667 7.575H17.0833" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M17.5 7.08333V14.1667C17.5 16.6667 16.25 18.3333 13.3333 18.3333H6.66667C3.75 18.3333 2.5 16.6667 2.5 14.1667V7.08333C2.5 4.58333 3.75 2.91667 6.66667 2.91667H13.3333C16.25 2.91667 17.5 4.58333 17.5 7.08333Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M13.0788 11.4167H13.0863" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M13.0788 13.9167H13.0863" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M9.99607 11.4167H10.0036" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M9.99607 13.9167H10.0036" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M6.91209 11.4167H6.91957" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M6.91209 13.9167H6.91957" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg
+                        className="w-5 h-5"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6.66667 1.66667V4.16667"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M13.3333 1.66667V4.16667"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M2.91667 7.575H17.0833"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M17.5 7.08333V14.1667C17.5 16.6667 16.25 18.3333 13.3333 18.3333H6.66667C3.75 18.3333 2.5 16.6667 2.5 14.1667V7.08333C2.5 4.58333 3.75 2.91667 6.66667 2.91667H13.3333C16.25 2.91667 17.5 4.58333 17.5 7.08333Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M13.0788 11.4167H13.0863"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M13.0788 13.9167H13.0863"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M9.99607 11.4167H10.0036"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M9.99607 13.9167H10.0036"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M6.91209 11.4167H6.91957"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M6.91209 13.9167H6.91957"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </button>
                     <input
@@ -341,7 +459,9 @@ export default function Register() {
                       mode="single"
                       selected={selectedDate}
                       onSelect={handleDateSelect}
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
                       initialFocus
                     />
                   </div>
@@ -371,8 +491,20 @@ export default function Register() {
                       disabled={isLoading}
                       className="flex-shrink-0 text-white/50 hover:text-white transition-colors disabled:opacity-50"
                     >
-                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13.28 5.96667L8.9333 10.3133C8.41997 10.8267 7.57997 10.8267 7.06664 10.3133L2.71997 5.96667" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg
+                        className="w-4 h-4"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M13.28 5.96667L8.9333 10.3133C8.41997 10.8267 7.57997 10.8267 7.06664 10.3133L2.71997 5.96667"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </button>
                   </div>

@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import ProtectedProfile from "./pages/ProtectedProfile";
 import ProfileStats from "./pages/ProfileStats";
 import PublicProfile from "./pages/PublicProfile";
 import Requests from "./pages/Requests";
@@ -16,8 +17,8 @@ import Settings from "./pages/Settings";
 import FindRequests from "./pages/FindRequests";
 import RequestData from "./pages/RequestData";
 import CreateRequest from "./pages/CreateRequest";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
-import TestConnection from "./pages/Test";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,8 @@ export const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/:username/profile" element={<Profile />} />
+          <Route path="/profile" element={<ProtectedProfile />} />
           <Route path="/stats" element={<ProfileStats />} />
           <Route path="/public-profile" element={<PublicProfile />} />
           <Route path="/requests" element={<Requests />} />
@@ -39,7 +41,7 @@ export const App = () => (
           <Route path="/find-requests" element={<FindRequests />} />
           <Route path="/request-data" element={<RequestData />} />
           <Route path="/create-request" element={<CreateRequest />} />
-          <Route path="/health" element={<TestConnection />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
