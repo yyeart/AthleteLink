@@ -444,7 +444,7 @@ export default function Settings() {
 
             {/* Levitating MAI Logo */}
             <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/a03e799eec89d8338d3085630ed1da2e8aeda771?width=734"
+              src="/MAI_logo.png"
               alt="MAI Logo"
               className="absolute right-8 top-[280px] w-[367px] h-[354px] object-contain animate-levitate-active"
             />
