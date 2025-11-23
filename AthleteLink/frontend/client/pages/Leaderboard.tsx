@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import { LEADERBOARD_DATA, HEADER_DATA } from "@/constants/leaderboardConstants";
 import { RATING_SPORTS } from "@/constants/filterConstants";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
 export default function Leaderboard() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function Leaderboard() {
         <div className="flex-1 p-7">
           <HeaderMenu
             greeting={`Добрый день, Захар`}
-            date={`Сб, 20 июля 2035`}
+            date={getCurrentDateFormatted()}
           />
 
           <div className="rounded-[10px] bg-[#797777]/50 p-8 min-h-[918px] relative">

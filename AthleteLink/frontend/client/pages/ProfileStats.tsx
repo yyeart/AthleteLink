@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { USER_STATS } from "@/constants/statsConstants";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
 export default function ProfileStats() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function ProfileStats() {
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
             greeting={`Добрый день, Захар`}
-            date={`Сб, 31 ноября 2026`}
+            date={getCurrentDateFormatted()}
           />
 
           {/* Main Content Area */}

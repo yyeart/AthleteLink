@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
   REQUEST_DATA_MOCK,
   HEADER_DATA,
@@ -14,7 +15,7 @@ export default function RequestData() {
       <div className="px-7 py-9">
         <HeaderMenu
           greeting={`Добрый день, Захар`}
-          date={`Сб, 31 января 2026`}
+          date={getCurrentDateFormatted()}
         />
 
         <div className="relative">

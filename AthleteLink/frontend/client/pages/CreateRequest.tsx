@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import { SPORTS } from "@/constants/filterConstants";
 import { Calendar } from "@/components/ui/calendar";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
   Popover,
   PopoverTrigger,
@@ -114,7 +115,7 @@ export default function CreateRequest() {
         <div className="flex-1 p-7">
           <HeaderMenu
             greeting="Добрый день, Захар"
-            date="Сб, 11 октября 2025"
+            date={getCurrentDateFormatted()}
           />
 
           {/* Main Content Area */}

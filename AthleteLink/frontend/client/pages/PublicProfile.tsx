@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
   PUBLIC_PROFILE_DATA,
   CAT_PLACEHOLDER,
@@ -14,7 +15,7 @@ export default function PublicProfile() {
       <div className="p-7 pb-0">
         <HeaderMenu
           greeting={`Добрый день, Захар`}
-          date={`Сб, 31 января 2026`}
+          date={getCurrentDateFormatted()}
           onProfileClick={() => navigate("/profile")}
         />
       </div>
