@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import HeaderMenu from "@/components/HeaderMenu";
+import SidebarNav from "@/components/SidebarMenu";
+import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
 // Тип данных, приходящих с бэкенда (соответствует сериализатору)
 interface Request {
@@ -47,39 +50,15 @@ export default function Requests() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
-      <div className="flex h-screen">
-        
-        {/* Sidebar (оставил без изменений) */}
-        <div className="w-[76px] border-r-2 border-[#5F5C5C] relative flex flex-col items-center pt-8 gap-12">
-           {/* ... (Ваш код иконок сайдбара остался здесь) ... */}
-           {/* Для краткости не дублирую SVG, они такие же как в макете */}
-           <div className="space-y-8 flex flex-col items-center mt-96">
-             <button onClick={() => navigate("/profile")} className="opacity-50 hover:opacity-100">🏠</button>
-             <button onClick={() => navigate("/stats")} className="opacity-50 hover:opacity-100">📊</button>
-             <button className="opacity-50 hover:opacity-100">🏅</button>
-           </div>
-        </div>
+      <div className="flex min-h-screen">
+        <SidebarNav activePage="requests" />
 
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h1 className="text-[#C9D2FF] text-2xl font-medium mb-1">
-                Ваши заявки
-              </h1>
-              <p className="text-white text-base font-light">
-                История и статус текущих игр
-              </p>
-            </div>
-            {/* Avatar / Search Placeholder */}
-            <div className="flex items-center gap-4">
-                <button onClick={() => navigate("/profile")}>
-                    <img src="/placeholder_avatar.jpg" alt="Profile" className="w-[47px] h-[44px] rounded-[10px]" />
-                </button>
-            </div>
-          </div>
+          <HeaderMenu
+            greeting={`Добрый день, Захар`}
+            date={getCurrentDateFormatted()}
+          />
 
           {/* Requests Section */}
           <div className="rounded-[10px] bg-[#DDD]/50 p-8 min-h-[800px] relative">

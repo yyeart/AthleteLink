@@ -1,13 +1,23 @@
 import json
 import random
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from .forms import UserRegistrationForm, UserLoginForm
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response(
+            {'detail': 'Успешный выход из системы'},
+            status=200
+        )
+
 
 def get_data(request):
     try:
@@ -75,7 +85,7 @@ def user_login(request):
             if user:
                 login(request, user)
                 return JsonResponse({
-                    'message': f'Добро пожаловать, {user.first_name}!',
+                    'message': f'Добро пожаловать, {user.full_name}!',
                     'username': user.username
                 })
             else:

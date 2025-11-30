@@ -56,10 +56,10 @@ class EventParticipantAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'username', 'first_name', 'city', 
+    list_display = ('email', 'username', 'full_name', 'city', 
                    'get_age', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'city', 'gender', 'created_at')
-    search_fields = ('email', 'username', 'first_name', 'last_name', 'telegram')
+    search_fields = ('email', 'username', 'full_name', 'telegram')
     readonly_fields = ('created_at', 'last_login')
     ordering = ('-created_at',)
     list_per_page = 50
@@ -69,7 +69,7 @@ class UserAdmin(admin.ModelAdmin):
             'fields': ('email', 'password')
         }),
         ('Основная информация', {
-            'fields': ('first_name', 'last_name', 'username', 'telegram')
+            'fields': ('full_name', 'username', 'telegram')
         }),
         ('Личная информация', {
             'fields': ('gender', 'birth_date', 'city', 'bio')

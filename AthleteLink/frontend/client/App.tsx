@@ -5,11 +5,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
-import ProtectedProfile from "./pages/ProtectedProfile";
+import AuthRedirect from "./pages/ProtectedProfile";
 import ProfileStats from "./pages/ProfileStats";
 import PublicProfile from "./pages/PublicProfile";
 import Requests from "./pages/Requests";
@@ -29,20 +30,23 @@ export const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* --- ПУБЛИЧНЫЕ МАРШРУТЫ (Доступны всем) --- */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/:username/profile" element={<Profile />} />
-          <Route path="/profile" element={<ProtectedProfile />} />
-          <Route path="/stats" element={<ProfileStats />} />
-          <Route path="/public-profile" element={<PublicProfile />} />
-          <Route path="/requests" element={<Requests />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/find-requests" element={<FindRequests />} />
-          <Route path="/request-data" element={<RequestData />} />
-          <Route path="/requests/create" element={<CreateRequest />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/profile" element={<AuthRedirect />} />
+          {/* --- ПРИВАТНЫЕ МАРШРУТЫ (Только для авторизованных) --- */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/:username/profile" element={<Profile />} />
+            <Route path="/:username/stats" element={<ProfileStats />} />
+            <Route path="/:username/requests" element={<Requests />} />
+            <Route path="/:username/settings" element={<Settings />} />
+            <Route path="/public-profile" element={<PublicProfile />} />
+            <Route path="/find-requests" element={<FindRequests />} />
+            <Route path="/request-data" element={<RequestData />} />
+            <Route path="/requests/create" element={<CreateRequest />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

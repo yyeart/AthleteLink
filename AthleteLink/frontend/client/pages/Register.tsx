@@ -107,7 +107,7 @@ export default function Register() {
       email,
       password,
       password_confirm: confirmPassword,
-      first_name: fullName,             
+      full_name: fullName,             
       telegram,
       birth_date: formattedDate,
       city,
