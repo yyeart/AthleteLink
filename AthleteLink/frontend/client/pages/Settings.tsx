@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ export default function Settings() {
   const [selectedSecretQuestion, setSelectedSecretQuestion] = useState("");
   const [secretAnswer, setSecretAnswer] = useState("");
   const [showQuestionDropdown, setShowQuestionDropdown] = useState(false);
+
+  const { logoutUser } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const secretQuestions = [
     "Имя вашего первого питомца?",
@@ -38,11 +42,16 @@ export default function Settings() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmed = window.confirm("Вы действительно хотите выйти?");
     if (confirmed) {
-      console.log("Logging out...");
-      navigate("/");
+      setIsLoggingOut(true);
+
+      try {
+        await logoutUser();
+      } finally {
+        setIsLoggingOut(false);
+      }
     }
   };
 
@@ -181,8 +190,9 @@ export default function Settings() {
               <button
                 onClick={handleLogout}
                 className="w-[257px] h-[38px] rounded-lg bg-[#B52626] text-white text-base text-center"
+                disabled={isLoggingOut}
               >
-                Выйти
+                {isLoggingOut ? 'Выход...' : 'Выйти'}
               </button>
             </div>
 

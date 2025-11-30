@@ -1,12 +1,29 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "@/hooks/useAuth"; 
 
-export default function ProtectedProfile() {
-  const navigate = useNavigate();
+export default function AuthRedirect() {
+    const { user, isLoading, isAuth } = useAuth();
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    navigate("/login");
-  }, [navigate]);
+    useEffect(() => {
+        if (isLoading) {
+            return; 
+        }
+        if (isAuth && user && user.username) {
+            navigate(`/${user.username}/profile`, { replace: true }); 
+        } 
+        else {
+            navigate('/login', { replace: true });
+        }
+    }, [isLoading, isAuth, navigate, user]);
 
-  return null;
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-black text-white text-xl">
+                Проверка статуса авторизации...
+            </div>
+        );
+    }
+    return null; 
 }

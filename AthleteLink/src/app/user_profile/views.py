@@ -1,6 +1,32 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.response import Response
+
+from .serializers import UserSerializer
+
+
+class CurrentUserView(RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def profile_detail(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+
 
 User = get_user_model()
 
