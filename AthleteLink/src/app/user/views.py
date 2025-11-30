@@ -85,7 +85,7 @@ def user_login(request):
             if user:
                 login(request, user)
                 return JsonResponse({
-                    'message': f'Добро пожаловать, {user.first_name}!',
+                    'message': f'Добро пожаловать, {user.full_name}!',
                     'username': user.username
                 })
             else:

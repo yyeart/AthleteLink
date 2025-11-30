@@ -1,23 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { format } from "date-fns";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
+import { User } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("Захар Смирнов");
-  const [username, setUsername] = useState("pauchuck");
+  const { user, isLoading } = useAuth();
+
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [gender, setGender] = useState("");
   const [city, setCity] = useState("");
   const [birthdate, setBirthdate] = useState("");
-  const [telegram, setTelegram] = useState("@Lovely_Specty");
-  const [email] = useState("alexarawles@gmail.com");
+  const [telegram, setTelegram] = useState("");
+  const [email, setEmail] = useState("");
 
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showBirthdateDropdown, setShowBirthdateDropdown] = useState(false);
   const [showTelegramDropdown, setShowTelegramDropdown] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+      setFullName(user.full_name || "");
+      setTelegram(user.telegram || "");
+      setCity(user.city || "");
+      setGender(user.gender || "");
+
+      if (user.birth_date) {
+        try {
+          const dateObj = new Date(user.birth_date);
+          setBirthdate(format(dateObj, "dd.MM.yyyy"));
+        } catch (e) {
+          console.error("Invalid date format from backend:", user.birth_date);
+          setBirthdate(user.birth_date);
+        }
+      }
+    }
+  }, [user, isLoading]);
+
+  if (isLoading) {
+    return <div>Загрузка данных профиля...</div>
+  }
+
+  if(!user) {
+    return <div>Ошибка: пользователь не авторизован</div>
+  }
 
   const handleSaveSettings = () => {
     console.log("Saving settings:", {
@@ -38,7 +72,7 @@ export default function Profile() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, Захар`}
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
@@ -77,7 +111,7 @@ export default function Profile() {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Захар Смирнов"
+                    placeholder={`${user.full_name}`}
                     className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none"
                   />
                 </div>
@@ -91,7 +125,7 @@ export default function Profile() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="pauchuck"
+                    placeholder={`${user.username}`}
                     className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none"
                   />
                 </div>
@@ -106,7 +140,7 @@ export default function Profile() {
                       type="text"
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      placeholder="Выберите пол"
+                      placeholder={`${user.gender}`}
                       className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
                     />
                     <button
@@ -142,7 +176,7 @@ export default function Profile() {
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="Введите или начните поиск через выпадающее меню"
+                      placeholder={`${user.city}`}
                       className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
                     />
                     <button
@@ -178,7 +212,7 @@ export default function Profile() {
                       type="text"
                       value={birthdate}
                       onChange={(e) => setBirthdate(e.target.value)}
-                      placeholder="Введите в формате ДД.ММ.ГГГГ"
+                      placeholder={`${user.birth_date}`}
                       className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
                     />
                     <button
@@ -216,7 +250,7 @@ export default function Profile() {
                       type="text"
                       value={telegram}
                       onChange={(e) => setTelegram(e.target.value)}
-                      placeholder="@Lovely_Specty"
+                      placeholder={`${user.telegram}`}
                       className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
                     />
                     <button

@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { getCookie } from "@/lib/csrf";
 
 interface User {
-    first_name: string,
-    last_name: string,
+    full_name: string,
     username: string,
     email: string,
     telegram: string,
     gender: string,
     birth_date: string,
+    city: string,
 }
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -30,7 +30,7 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: user, isLoading, isError } = useQuery({
+  const { data: user, isLoading, isError, refetch } = useQuery({
     queryKey: ['auth-user'],
     queryFn: fetchUser,
     retry: false, 
@@ -79,5 +79,6 @@ export function useAuth() {
     isLoading,      
     isAuth: !!user,
     logoutUser,
+    refetchUser: refetch,
   };
 }

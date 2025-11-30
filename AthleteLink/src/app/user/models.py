@@ -18,8 +18,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser):
-    first_name = models.CharField(max_length=100, verbose_name='Имя')
-    last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Фамилия')
+    full_name = models.CharField(max_length=100, verbose_name='Имя')
     username = models.CharField(max_length=50, unique=True, verbose_name='Никнейм')
     telegram = models.CharField(max_length=100, verbose_name='Telegram')
     
@@ -40,7 +39,7 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'telegram', 'birth_date', 'city']
+    REQUIRED_FIELDS = ['username', 'full_name', 'telegram', 'birth_date', 'city']
     
     objects = UserManager()
     

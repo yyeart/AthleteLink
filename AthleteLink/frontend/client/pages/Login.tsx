@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -21,7 +23,7 @@ export default function Login() {
 
     try {
         const response = await fetch(`${apiUrl}/user/login/`, {
-            method: 'POST', // !!! УБЕДИТЕСЬ, ЧТО МЕТОД - POST !!!
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -32,8 +34,11 @@ export default function Login() {
       const data = await response.json();
 
       if(response.ok) {
+        await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
+        await queryClient.refetchQueries({ queryKey: ['auth-user'] });
         console.log("Login success:", data);
-        navigate(`/${data.username}/profile/`);
+        navigate(`/profile/`);
+        console.log("navigate successfull");
       } else{
         console.error("Login error:", data);
         let errorMessage = "Произошла ошибка при входе";
