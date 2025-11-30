@@ -4,6 +4,7 @@ from . import views
 app_name = 'requests'
 
 urlpatterns = [
-    path("", views.RequestListCreateView.as_view(), name='list_create'),
-    # path("/create/", views.create_request_page, name='create') ПОКА НЕ ВОРКАЕТ
+    path("", views.RequestListCreateView.as_view(), name='list'),
+    path("create/", views.RequestCreateView.as_view(), name='create'),
+    path('sports/', views.SportListView.as_view(), name='sport-list')
 ]

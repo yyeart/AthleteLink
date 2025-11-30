@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import HeaderMenu from "@/components/HeaderMenu";
 import { SPORTS } from "@/constants/filterConstants";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,39 +11,61 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import YandexMap from "@/components/YandexMap";
+import { getCookie } from "@/lib/csrf";
 
-// --- Правила для видов спорта ---
-interface SportRule {
-  min: number;
-  max: number;
-  isFixed?: boolean;
-  default?: number;
-  hint: string;
+interface Sport {
+  id: number,
+  name: string,
+  min_required_players: number,
+  max_required_players: number,
 }
-
-const SPORT_RULES: Record<string, SportRule> = {
-  "Футбол": { min: 10, max: 22, hint: "Обычно 10-22 игрока (5x5 - 11x11)" },
-  "Баскетбол": { min: 6, max: 10, hint: "6-10 игроков (3x3 - 5x5)" },
-  "Волейбол": { min: 4, max: 12, hint: "4-12 игроков" },
-  "Теннис": { min: 2, max: 4, isFixed: true, default: 2, hint: "Фиксировано: 2 игрока (парный вид)" },
-  "Настольный теннис": { min: 2, max: 4, isFixed: true, default: 2, hint: "Фиксировано: 2 игрока" },
-  "default": { min: 2, max: 100, hint: "От 2 игроков" }
-};
 
 export default function CreateRequest() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
   
   // --- State ---
+
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [playersCount, setPlayersCount] = useState("");
+  const [selectedSportId, setSelectedSportId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchSports = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/requests/sports/`);
+        if(response.ok){
+          const data: Sport[] = await response.json();
+          setSports(data);
+        } else {
+          console.error('Failed to fetch sports for some reason');
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+      }
+    };
+    fetchSports();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sportDropdownRef.current && !sportDropdownRef.current.contains(event.target as Node)) {
+        setShowSportDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const [title, setTitle] = useState("");
-  const [sport, setSport] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateInput, setDateInput] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEventLoading, setIsEventLoading] = useState(false);
 
   // --- Dropdowns State ---
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -52,40 +75,17 @@ export default function CreateRequest() {
   const sportDropdownRef = useRef<HTMLDivElement>(null);
   const locationDropdownRef = useRef<HTMLDivElement>(null);
 
-  // --- Helpers ---
-  const getSportRule = (sportName: string): SportRule => {
-    return SPORT_RULES[sportName] || SPORT_RULES["default"];
-  };
-
   const locationSuggestions = [
     "г. Москва, ул. 1-я Лагерная, д. 1",
     "г. Москва, Московский авиационный институт",
     "г. Москва, ул. Ленина, д. 10",
   ];
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sportDropdownRef.current && !sportDropdownRef.current.contains(event.target as Node)) {
-        setShowSportDropdown(false);
-      }
-      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
-        setShowLocationDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // --- Handlers ---
-  const handleSportSelect = (selectedSport: string) => {
-    setSport(selectedSport);
+  const handleSportSelect = (sportId: number) => {
+    setSelectedSportId(sportId);
     setShowSportDropdown(false);
-    const rule = getSportRule(selectedSport);
-    if (rule.isFixed && rule.default) {
-      setNumberOfPlayers(rule.default.toString());
-    } else {
-      setNumberOfPlayers("");
-    }
+    setPlayersCount("");
   };
 
   const handlePlayerCountChange = (val: string) => {
@@ -134,24 +134,27 @@ export default function CreateRequest() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !sport || !numberOfPlayers || !dateInput || !time || !location) {
+    const csrfToken = getCookie('csrftoken');
+
+    if(!csrfToken) {
+      console.error("CSRF token is missing! Check Django configuration.");
+      alert("Ошибка безопасности: Отсутствует CSRF-токен.");
+      return;
+    }
+    
+    if (!title || !selectedSportId || !playersCount || !dateInput || !time || !location) {
       alert("Пожалуйста, заполните все обязательные поля.");
       return;
     }
 
     const players = parseInt(numberOfPlayers, 10);
-    const rule = getSportRule(sport);
-    if (players < rule.min || players > rule.max) {
-      alert(`Для спорта "${sport}" количество игроков должно быть от ${rule.min} до ${rule.max}.`);
-      return;
-    }
 
-    setIsLoading(true);
+    setIsEventLoading(true);
 
     const payload = {
       title,
-      sport,
-      numberOfPlayers: players,
+      sport: selectedSportId,
+      numberOfPlayers: playersCount,
       date: dateInput,
       time,
       location,
@@ -159,15 +162,18 @@ export default function CreateRequest() {
     };
 
     try {
-      const response = await fetch(`${apiUrl}/requests/`, {
+      const response = await fetch(`${apiUrl}/requests/create/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+         },
         credentials: 'include', 
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        navigate('/requests');
+        navigate(`/${user.username}/requests/`);
       } else {
         const err = await response.json();
         console.error(err);
@@ -177,11 +183,17 @@ export default function CreateRequest() {
       console.error(error);
       alert("Ошибка сети.");
     } finally {
-      setIsLoading(false);
+      setIsEventLoading(false);
     }
   };
 
-  const currentSportRule = getSportRule(sport);
+  const getSelectedSport = (): Sport | undefined => {
+    if (!selectedSportId) return undefined;
+    return sports.find(s => s.id === Number(selectedSportId));
+  };
+
+  const sportLimits = getSelectedSport();
+  const selectedSportName = sportLimits ? sportLimits.name : "Выберите из списка";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
@@ -232,59 +244,71 @@ export default function CreateRequest() {
                   </p>
                 </div>
 
-                {/* --- 2. SPORT (Вид спорта) --- */}
                 <div>
                   <label className="block text-white text-[32px] font-normal mb-2 opacity-80">
-                    Выберите вид спорта
+                      Выберите вид спорта
                   </label>
                   <div className="relative" ref={sportDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setShowSportDropdown(!showSportDropdown)}
-                      className="w-full h-[68px] rounded-[15px] bg-[#F9F9F9]/50 px-5 flex items-center justify-between"
-                    >
-                      <span className={`text-[26px] ${sport ? "text-black" : "text-black/40"}`}>
-                        {sport || "Выберите из списка"}
-                      </span>
-                      <span className="text-black/50 text-xl">▼</span>
-                    </button>
-                    {showSportDropdown && (
-                      <div className="absolute top-[76px] left-0 w-full bg-[#2a2a2a] border-2 border-black rounded-[15px] shadow-lg z-50 max-h-[300px] overflow-y-auto">
-                        {Object.keys(SPORT_RULES).filter(k => k !== 'default').map((sportOption) => (
-                          <button
-                            key={sportOption}
-                            type="button"
-                            onClick={() => handleSportSelect(sportOption)}
-                            className="w-full px-5 py-3 text-left text-white text-[20px] font-light hover:bg-[#3a3a3a] border-b border-white/20"
-                          >
-                            {sportOption}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      <button
+                          type="button"
+                          onClick={() => setShowSportDropdown(!showSportDropdown)}
+                          className="w-full h-[68px] rounded-[15px] bg-[#F9F9F9]/50 px-5 flex items-center justify-between"
+                      >
+                          <span className={`text-[26px] ${sportLimits ? "text-black" : "text-black/40"}`}>
+                              {/* 🔑 Используем вычисленное имя */}
+                              {selectedSportName} 
+                          </span>
+                          <span className="text-black/50 text-xl">▼</span>
+                      </button>
+                      {showSportDropdown && (
+                          <div className="absolute top-[76px] left-0 w-full bg-[#2a2a2a] border-2 border-black rounded-[15px] shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                              {sports.map((sportOption) => (
+                                  <button
+                                      key={sportOption.id}
+                                      type="button"
+                                      onClick={() => {
+                                          // 🔑 Устанавливаем только ID
+                                          setSelectedSportId(sportOption.id); 
+                                          setShowSportDropdown(false);
+                                          setPlayersCount(''); 
+                                      }}
+                                      className="w-full px-5 py-3 text-left text-white text-[20px] font-light hover:bg-[#3a3a3a] border-b border-white/20"
+                                  >
+                                      {sportOption.name}
+                                  </button>
+                              ))}
+                              {sports.length === 0 && (
+                                  <div className="w-full px-5 py-3 text-white/50 text-center">
+                                      Загрузка... или Список пуст.
+                                  </div>
+                              )}
+                          </div>
+                      )}
                   </div>
-                </div>
 
-                {/* --- 3. NUMBER OF PLAYERS (Кол-во игроков) --- */}
-                <div>
-                  <label className={`block text-white text-[32px] font-normal mb-2 transition-opacity ${!sport ? 'opacity-40' : 'opacity-80'}`}>
-                    Количество игроков
-                  </label>
-                  <input
-                    type="text"
-                    value={numberOfPlayers}
-                    onChange={(e) => handlePlayerCountChange(e.target.value)}
-                    placeholder={!sport ? "Сначала выберите спорт" : "Число"}
-                    disabled={!sport || !!currentSportRule.isFixed}
-                    className={`w-full h-[68px] rounded-[15px] bg-[#F9F9F9]/50 px-5 text-[28px] text-black placeholder:text-black/40 outline-none transition-all 
-                        ${(!sport || currentSportRule.isFixed) ? 'cursor-not-allowed opacity-70' : ''}`}
-                  />
-                  <p className="text-white/60 text-sm mt-1 ml-2 min-h-[20px]">
-                    {sport 
-                      ? currentSportRule.hint 
-                      : "Поле станет доступно после выбора вида спорта"}
-                  </p>
-                </div>
+                  {/* 🔑 Рендерим поле, только если sportLimits существует (т.е. спорт выбран) */}
+                  {sportLimits && ( 
+                      <div className="mt-4">
+                          <label className="block text-white text-[32px] font-normal mb-2 opacity-80">
+                              Количество игроков
+                          </label>
+                          <input
+                              type="number"
+                              // 🔑 Используем найденные лимиты
+                              min={sportLimits.min_required_players}
+                              max={sportLimits.max_required_players}
+                              value={playersCount}
+                              onChange={(e) => setPlayersCount(e.target.value)}
+                              placeholder={`От ${sportLimits.min_required_players} до ${sportLimits.max_required_players}`}
+                              className="w-full h-[68px] rounded-[15px] bg-[#F9F9F9]/50 px-5 text-[26px] text-black focus:outline-none"
+                              required
+                          />
+                          <p className="text-white/70 text-sm mt-1">
+                              Для выбранного спорта требуется от {sportLimits.min_required_players} до {sportLimits.max_required_players} игроков.
+                          </p>
+                      </div>
+                  )}
+              </div>
 
                 {/* --- 4. DATE --- */}
                 <div>
@@ -390,25 +414,7 @@ export default function CreateRequest() {
 
               {/* Right Column */}
               <div className="space-y-6">
-                {/* Description */}
-                <div>
-                  <label className="block text-white text-[32px] font-normal mb-4 opacity-80">
-                    Введите описани�� (необязательно, не более 512 символов)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Начинайте вводить здесь..."
-                    maxLength={512}
-                    className="w-full h-[337px] rounded-[40px] bg-[#F9F9F9]/50 p-6 text-[24px] text-black placeholder:text-black/40 outline-none resize-none"
-                  />
-                </div>
-
-                {/* Map */}
-                <YandexMap
-                  onAddressSelect={(address) => setLocation(address)}
-                  height="327px"
-                />
+                  
 
                 {/* Submit Button */}
                 <div className="pt-4">

@@ -1,16 +1,7 @@
 from django.contrib import admin
-from .models import User, Sport, UserRating, Event, EventParticipant
+from .models import User, UserRating, EventParticipant
+from ..requests.models import Sport, ActivityRequest
 from datetime import date
-
-@admin.register(Sport)
-class SportAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_at')
-    search_fields = ('name',)
-    list_per_page = 20
-    
-    def created_at(self, obj):
-        return "Базовая модель"
-    created_at.short_description = 'Тип'
 
 @admin.register(UserRating)
 class UserRatingAdmin(admin.ModelAdmin):
@@ -24,10 +15,10 @@ class UserRatingAdmin(admin.ModelAdmin):
         return "★" * int(obj.rating) + "☆" * (5 - int(obj.rating))
     get_rating_stars.short_description = 'Рейтинг'
 
-@admin.register(Event)
+@admin.register(ActivityRequest)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('sport', 'organizer', 'event_date', 'status', 
-                   'required_players', 'current_players', 'players_progress')
+    list_display = ('sport', 'request_creator', 'event_date', 'status', 
+                   'players_count', 'current_players', 'players_progress')
     list_filter = ('sport', 'status', 'event_date', 'created_at')
     search_fields = ('sport__name', 'organizer__nickname', 'organizer__email', 'address')
     readonly_fields = ('created_at', 'current_players')
