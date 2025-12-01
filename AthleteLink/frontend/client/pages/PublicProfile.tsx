@@ -5,7 +5,6 @@ import HeaderMenu from "@/components/HeaderMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
   PUBLIC_PROFILE_DATA,
-  CAT_PLACEHOLDER,
 } from "@/constants/publicProfileConstants";
 
 export default function PublicProfile() {

@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function Settings() {
   const navigate = useNavigate();

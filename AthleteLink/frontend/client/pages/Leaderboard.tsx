@@ -13,6 +13,7 @@ export default function Leaderboard() {
   const [activeTab, setActiveTab] = useState("overall");
   const [sportFilter, setSportFilter] = useState("Литрбол");
   const [showSportDropdown, setShowSportDropdown] = useState(false);
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
 
 
   const sportDropdownRef = useRef(null);

@@ -23,7 +23,7 @@ export default function Requests() {
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
   // 1. Запрос к API за списком заявок
-  const { data: requests = [], isLoading, error } = useQuery<Request[]>({
+  const { data: requests = [], isLoading: isRequestsLoading, error } = useQuery<Request[]>({
     queryKey: ['requests'],
     queryFn: async () => {
       const response = await fetch(`${apiUrl}/requests/`, {
@@ -71,9 +71,9 @@ export default function Requests() {
             </h2>
 
             {/* Loading / Error / Empty States */}
-            {isLoading && <p className="text-center text-xl">Загрузка...</p>}
+            {isRequestsLoading && <p className="text-center text-xl">Загрузка...</p>}
             {error && <p className="text-center text-red-600 text-xl">Ошибка загрузки данных</p>}
-            {!isLoading && requests.length === 0 && (
+            {!isRequestsLoading && requests.length === 0 && (
                 <p className="text-center text-xl text-gray-700">У вас пока нет активных заявок.</p>
             )}
 
