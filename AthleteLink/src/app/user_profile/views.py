@@ -7,6 +7,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 
 from .serializers import UserSerializer
+from .permissions import IsProfileOwner
 
 
 class CurrentUserView(RetrieveAPIView):
@@ -20,7 +21,7 @@ class CurrentUserView(RetrieveAPIView):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsProfileOwner])
 def profile_detail(request):
     user = request.user
     serializer = UserSerializer(user)

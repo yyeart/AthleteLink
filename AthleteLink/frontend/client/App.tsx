@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProfileOwnerGuard from "./components/guards/ProfileOwnerGuard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -38,10 +39,10 @@ export const App = () => (
           <Route path="/requests" element={<AllRequests />} />
           {/* --- ПРИВАТНЫЕ МАРШРУТЫ (Только для авторизованных) --- */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/:username/profile" element={<Profile />} />
-            <Route path="/:username/stats" element={<ProfileStats />} />
-            <Route path="/:username/requests" element={<Requests />} />
-            <Route path="/:username/settings" element={<Settings />} />
+            <Route path="/:username/profile" element={<ProfileOwnerGuard><Profile /></ProfileOwnerGuard>} />
+            <Route path="/:username/stats" element={<ProfileOwnerGuard><ProfileStats /></ProfileOwnerGuard>} />
+            <Route path="/:username/requests" element={<ProfileOwnerGuard><Requests /></ProfileOwnerGuard>} />
+            <Route path="/:username/settings" element={<ProfileOwnerGuard><Settings /></ProfileOwnerGuard>} />
             <Route path="/public-profile" element={<PublicProfile />} />
             <Route path="/request-data" element={<RequestData />} />
             <Route path="/requests/create" element={<CreateRequest />} />
