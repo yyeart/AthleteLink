@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { useQuery } from "@tanstack/react-query";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
@@ -58,7 +59,7 @@ export default function Requests() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, ${user.full_name}`}
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

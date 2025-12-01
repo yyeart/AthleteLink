@@ -5,12 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f53ef5f8-a36c-434c-b4a6-29715bf28e13" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/CreateRequest.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/CreateRequest.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/FindRequests.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/FindRequests.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/Leaderboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/Leaderboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/client/pages/Profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/Profile.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/ProfileStats.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/ProfileStats.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/PublicProfile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/PublicProfile.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/client/pages/Register.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/Register.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/RequestData.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/RequestData.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/Requests.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/Requests.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/client/pages/Settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/client/pages/Settings.tsx" afterDir="false" />

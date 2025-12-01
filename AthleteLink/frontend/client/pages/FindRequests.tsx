@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { SPORTS, DATE_FILTERS } from "@/constants/filterConstants";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
@@ -187,10 +188,9 @@ export default function FindRequests() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="flex min-h-screen">
-        {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, ${user.full_name}`}
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import HeaderMenu from "@/components/HeaderMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
@@ -15,7 +16,7 @@ export default function PublicProfile() {
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="p-7 pb-0">
         <HeaderMenu
-          greeting={`Добрый день, ${user.full_name}`}
+          greeting={`${getTimeGreeting()}, ${user.full_name}`}
           date={getCurrentDateFormatted()}
           onProfileClick={() => navigate("/profile")}
         />

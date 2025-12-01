@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { format } from "date-fns";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
@@ -72,7 +73,7 @@ export default function Profile() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, ${user.full_name}`}
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

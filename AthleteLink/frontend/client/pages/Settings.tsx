@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
@@ -64,7 +65,7 @@ export default function Settings() {
 
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, ${user.full_name}`}
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
