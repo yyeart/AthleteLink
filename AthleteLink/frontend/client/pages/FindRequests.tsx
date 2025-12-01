@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
+import { useAuth } from "@/hooks/useAuth";
 import { SPORTS, DATE_FILTERS } from "@/constants/filterConstants";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
@@ -17,6 +18,7 @@ interface RequestItem {
 
 export default function FindRequests() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const [sportFilter, setSportFilter] = useState("Литрбол");
   const [dateFilter, setDateFilter] = useState("По дате");
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -74,7 +76,7 @@ export default function FindRequests() {
       id: 4,
       title: "Бухич на заборах МАИ №4",
       description: "Вы будете играть в Литрбол!",
-      venue: "Московский ави��ционный...",
+      venue: "Московский авиационный...",
       dateTime: "18.10.2025, 23:33",
       players: "Игроков: 256/256",
       avgRating: "Ср. рейтинг: ~50000",
@@ -188,7 +190,7 @@ export default function FindRequests() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting="Добрый день, Захар"
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

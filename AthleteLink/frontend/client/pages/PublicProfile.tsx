@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import HeaderMenu from "@/components/HeaderMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
@@ -8,23 +9,20 @@ import {
 
 export default function PublicProfile() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
-      {/* Header */}
       <div className="p-7 pb-0">
         <HeaderMenu
-          greeting={`Добрый день, Захар`}
+          greeting={`Добрый день, ${user.full_name}`}
           date={getCurrentDateFormatted()}
           onProfileClick={() => navigate("/profile")}
         />
       </div>
 
-      {/* Main Content */}
       <div className="max-w-[1280px] mx-auto px-9 py-6">
-        {/* Profile Card */}
         <div className="rounded-[10px] bg-[#797777]/50 p-8 relative min-h-[932px]">
-          {/* Header Gradient */}
           <div
             className="absolute top-0 left-0 right-0 h-[88px] rounded-t-[10px]"
             style={{
@@ -34,16 +32,13 @@ export default function PublicProfile() {
             }}
           />
 
-          {/* Profile Info Section */}
           <div className="relative z-10 flex items-start gap-6 mb-8">
-            {/* Avatar */}
             <img
               src={`${PUBLIC_PROFILE_DATA.avatar}?width=330`}
               alt="Profile Avatar"
               className="w-[140px] h-[140px] rounded-full object-cover mt-20 flex-shrink-0"
             />
 
-            {/* Info */}
             <div className="flex-1 mt-16">
               <h1 className="text-white text-[36px] font-light mb-6">
                 {PUBLIC_PROFILE_DATA.playerName}
@@ -73,7 +68,6 @@ export default function PublicProfile() {
               </div>
             </div>
 
-            {/* Cat Video */}
             <div className="flex flex-col items-center mt-16">
               <div className="w-[260px] h-[260px] rounded-lg overflow-hidden bg-gray-800">
                 <video
@@ -88,9 +82,7 @@ export default function PublicProfile() {
             </div>
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid grid-cols-12 gap-6 mt-8">
-            {/* Left Column - Best Sport */}
             <div className="col-span-3">
               <div
                 className="rounded-[55px] border-[1.5px] border-black shadow-[0_14px_4px_0_rgba(0,0,0,0.50)] p-6 flex flex-col items-center relative overflow-visible min-h-[445px] mt-10"
@@ -98,7 +90,6 @@ export default function PublicProfile() {
                   background: `linear-gradient(90deg, ${PUBLIC_PROFILE_DATA.bestSport.gradientFrom} 0%, ${PUBLIC_PROFILE_DATA.bestSport.gradientTo} 100%)`,
                 }}
               >
-                {/* Badge Image positioned above */}
                 <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 scale-[1.8]">
                   <img
                     src={`${PUBLIC_PROFILE_DATA.bestSport.badgeImage}?width=546`}
@@ -107,7 +98,6 @@ export default function PublicProfile() {
                   />
                 </div>
 
-                {/* Roman Numeral */}
                 <div
                   className="text-[100px] font-bold text-center mt-24"
                   style={{
@@ -142,13 +132,11 @@ export default function PublicProfile() {
               </div>
             </div>
 
-            {/* Middle Column - Other Sports */}
             <div className="col-span-5 space-y-6">
               <h3 className="text-white text-xl font-light">
                 Spectrum также играет в:
               </h3>
 
-              {/* First Sport */}
               <div className="flex items-center relative">
                 <div className="relative z-10">
                   <img
@@ -181,7 +169,6 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              {/* Second Sport */}
               <div className="flex items-center relative">
                 <div className="relative z-10">
                   <img
@@ -214,7 +201,6 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              {/* Third Sport */}
               <div className="flex items-center relative">
                 <div className="relative z-10">
                   <img
@@ -247,7 +233,6 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              {/* Fourth Sport */}
               <div className="flex items-center relative">
                 <div className="relative z-10">
                   <img
@@ -281,9 +266,7 @@ export default function PublicProfile() {
               </div>
             </div>
 
-            {/* Right Column */}
             <div className="col-span-4 space-y-6">
-              {/* Last Game */}
               <div>
                 <h3 className="text-white text-xl font-light mb-4">
                   Последняя игра:
@@ -323,7 +306,6 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              {/* Recent Opponents */}
               <div>
                 <h3 className="text-white text-xl font-light mb-4">
                   Последние соперники:
@@ -351,7 +333,6 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              {/* Overall Ranking */}
               <div>
                 <h3 className="text-white text-xl font-light mb-4">
                   Положение в общем рейтинге:

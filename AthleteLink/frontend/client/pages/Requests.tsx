@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
@@ -17,6 +18,7 @@ interface Request {
 
 export default function Requests() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
   // 1. Запрос к API за списком заявок
@@ -56,7 +58,7 @@ export default function Requests() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, Захар`}
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

@@ -201,7 +201,7 @@ export default function CreateRequest() {
         {/* Main Content */}
         <div className="flex-1 p-7">
           <HeaderMenu
-            greeting="Добрый день, Захар"
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

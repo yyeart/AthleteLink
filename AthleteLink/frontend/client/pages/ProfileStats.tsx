@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { USER_STATS } from "@/constants/statsConstants";
+import { useAuth } from "@/hooks/useAuth";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
 export default function ProfileStats() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const [bounceCount, setBounceCount] = useState(0);
 
   return (
@@ -18,7 +20,7 @@ export default function ProfileStats() {
         {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, Захар`}
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 

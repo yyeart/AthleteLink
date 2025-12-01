@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
+import { useAuth } from "@/hooks/useAuth";
 import { LEADERBOARD_DATA, HEADER_DATA } from "@/constants/leaderboardConstants";
 import { RATING_SPORTS } from "@/constants/filterConstants";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
 export default function Leaderboard() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overall");
   const [sportFilter, setSportFilter] = useState("Литрбол");
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -34,7 +36,7 @@ export default function Leaderboard() {
       <div className="flex min-h-screen">
         <div className="flex-1 p-7">
           <HeaderMenu
-            greeting={`Добрый день, Захар`}
+            greeting={`Добрый день, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
