@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, status
 from .models import ActivityRequest, Sport
-from .serializers import RequestListSerializer, RequestCreateSerializer, SportSerializer
+from .serializers import (RequestListSerializer, RequestCreateSerializer, SportSerializer,
+                          AllRequestsListSerializer)
 
 class RequestListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -28,3 +29,14 @@ class SportListView(generics.ListAPIView):
     queryset = Sport.objects.all()
     serializer_class = SportSerializer
     permission_classes = [permissions.AllowAny]
+
+class AllRequestsListView(generics.ListAPIView):
+    serializer_class = AllRequestsListSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return ActivityRequest.objects.filter(
+            status='planned'
+        ).select_related('sport').order_by('event_date')
+
+

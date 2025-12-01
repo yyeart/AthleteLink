@@ -25,7 +25,7 @@ export default function HeaderMenu({
       <div className="flex items-center gap-4">
         {/* Search */}
         <button
-          onClick={() => navigate("/find-requests")}
+          onClick={() => navigate("/requests")}
           className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center hover:bg-white/70 transition-colors"
         >
           <svg

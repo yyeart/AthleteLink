@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import { SPORTS, DATE_FILTERS } from "@/constants/filterConstants";
@@ -7,23 +7,66 @@ import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 interface RequestItem {
   id: number;
   title: string;
-  description: string;
-  venue: string;
-  dateTime: string;
-  players: string;
-  avgRating: string;
-  sport: string;
+  sport: {id: number; name: string};
+  event_date: string;
+  location: string;
+  players_info: string;
+  status_display: string;
+  avgRating?: number;
 }
 
-export default function FindRequests() {
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export default function AllRequests() {
   const navigate = useNavigate();
-  const [sportFilter, setSportFilter] = useState("Литрбол");
+
+  const [sportFilter, setSportFilter] = useState("Все виды спорта");
   const [dateFilter, setDateFilter] = useState("По дате");
+
+  const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [showSportDropdown, setShowSportDropdown] = useState(false);
   const [showDateDropdown, setShowDateDropdown] = useState(false);
-
   const sportDropdownRef = useRef<HTMLDivElement>(null);
   const dateDropdownRef = useRef<HTMLDivElement>(null);
+
+  const availableSportOptions = useMemo(() => {
+    const uniqueSports = new Set(
+      requests.map(request => request.sport.name)
+    );
+
+    const options = ["Все виды спорта", ...Array.from(uniqueSports)];
+    if (!options.includes(sportFilter)) {
+      setSportFilter("Все виды спорта");
+    }
+    return options;
+  }, [requests, sportFilter]);
+
+  const fetchPlannedRequests = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiUrl}/all-requests/`);
+
+      if(!response.ok) {
+        throw new Error(`Ошибка HTTP: ${response.status}`);
+      }
+
+      const data: RequestItem[] = await response.json();
+      setRequests(data);
+    } catch (err) {
+      console.error("Ошибка при загрузке заявок:", err);
+      setError("Не удалось загрузить запланированные заявки. Проверьте API_URL и статус бэкенда.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPlannedRequests();
+  }, [fetchPlannedRequests]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,148 +82,40 @@ export default function FindRequests() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const requests: RequestItem[] = [
-    {
-      id: 1,
-      title: "Бухич на заборах МАИ №1",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 2,
-      title: "Бухич на заборах МАИ №2",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 3,
-      title: "Бухич на заборах МАИ №3",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 4,
-      title: "Бухич на заборах МАИ №4",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский ави��ционный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 5,
-      title: "Бухич на заборах МАИ №5",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 6,
-      title: "Бухич на заборах МАИ №6",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 7,
-      title: "Бухич на заборах МАИ №7",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 8,
-      title: "Бухич на заборах МАИ №8",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 9,
-      title: "Бухич на заборах МАИ №9",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 10,
-      title: "Бухич на заборах МАИ №10",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 11,
-      title: "Бухич на заборах МАИ №11",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 12,
-      title: "Бухич на заборах МАИ №12",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 13,
-      title: "Бухич на заборах МАИ №13",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-    {
-      id: 14,
-      title: "Бухич на заборах МАИ №14",
-      description: "Вы будете играть в Литрбол!",
-      venue: "Московский авиационный...",
-      dateTime: "18.10.2025, 23:33",
-      players: "Игроков: 256/256",
-      avgRating: "Ср. рейтинг: ~50000",
-      sport: "Литрбол",
-    },
-  ];
+  const filteredRequests = useMemo(() => {
+    let currentRequests = requests;
+    if(sportFilter !== 'Все виды спорта') {
+      currentRequests = currentRequests.filter(
+        (request) => request.sport.name === sportFilter
+      );
+    }
+
+    // =========================================================================
+    // СОРТИРОВКА ПО ДАТЕ
+    // =========================================================================
+
+
+    return currentRequests;
+  }, [requests, sportFilter, dateFilter]);
+
+  const formatDateTime = (isoString: string) => {
+    try {
+      const date = new Date(isoString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${day}.${month}.${year}, ${hours}:${minutes}`;
+    } catch {
+      return isoString;
+    }
+  };
+
+  const formatRating = (rating?: number) => {
+      // Используем toFixed(0) для целого числа рейтинга
+      return rating !== undefined && rating !== null ? `Ср. рейтинг: ~${rating.toFixed(0)}` : 'Ср. рейтинг: N/A';
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
@@ -245,7 +180,7 @@ export default function FindRequests() {
                   {/* Sport Dropdown Menu */}
                   {showSportDropdown && (
                     <div className="absolute top-[88px] left-0 w-[380px] bg-[#2a2a2a] border-[2.6px] border-black rounded-[20px] shadow-lg z-50">
-                      {SPORTS.map((sport) => (
+                      {availableSportOptions.map((sport) => (
                         <button
                           key={sport}
                           onClick={() => {
@@ -324,25 +259,46 @@ export default function FindRequests() {
                 </div>
               </div>
             </div>
+                  
+            {isLoading && (
+              <div className="text-white text-center text-3xl py-10">
+                Загрузка...
+              </div>
+            )}
+            {error && (
+              <div className="text-red-400 text-center text-3xl py-10">
+                Ошибка загрузки: {error}
+                <div className="mt-4 text-xl text-yellow-300">
+                    Сервер недоступен
+                </div>
+              </div>
+            )}
+            
+            {!isLoading && filteredRequests.length === 0 && !error && (
+              <div className="text-white text-center text-3xl py-10">
+                Нет запланированных заявок, соответствующих текущим фильтрам.
+              </div>
+            )}
 
             {/* Requests List */}
             <div className="space-y-0 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/50">
-              {requests.map((request) => (
+              {filteredRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="border-[0.5px] border-white rounded-[30px] px-6 py-4 flex items-center justify-between"
+                  className="border-[0.5px] border-white rounded-[30px] px-6 py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between transition-colors hover:bg-white/10"
                 >
                   {/* Left Side - Event Info */}
                   <div className="flex-1">
                     <button
-                      onClick={() => navigate("/request-data")}
+                      onClick={() => navigate(`/requests/${request.id}`)}
+                      className="text-left w-full"
                     >
                       <h3 className="text-white text-[20px] font-light mb-1">
                         {request.title}
                       </h3>
                     </button>
                     <p className="text-white text-[15px] font-light">
-                      {request.description}
+                      {request.status_display}
                     </p>
                   </div>
 
@@ -351,35 +307,35 @@ export default function FindRequests() {
                     {/* Venue */}
                     <div className="border border-white rounded-[50px] px-4 py-1.5 min-w-[226px] text-center">
                       <span className="text-white text-[15px] font-light text-right">
-                        {request.venue}
+                        {request.location}
                       </span>
                     </div>
 
                     {/* Date/Time */}
                     <div className="border border-white rounded-[50px] px-4 py-1.5 min-w-[165px] text-center">
                       <span className="text-white text-base font-light text-right">
-                        {request.dateTime}
+                        {formatDateTime(request.event_date)}
                       </span>
                     </div>
 
                     {/* Players */}
                     <div className="border border-white rounded-[50px] px-4 py-1.5 min-w-[165px] text-center">
                       <span className="text-white text-[15px] font-light text-right">
-                        {request.players}
+                        Игроков: {request.players_info}
                       </span>
                     </div>
 
                     {/* Average Rating */}
                     <div className="border border-white rounded-[50px] px-4 py-1.5 min-w-[167px] text-center">
                       <span className="text-white text-[15px] font-light text-right">
-                        {request.avgRating}
+                        {formatRating(request.avgRating)}
                       </span>
                     </div>
 
                     {/* Sport Type */}
                     <div className="border border-white rounded-[50px] px-4 py-1.5 min-w-[106px] text-center">
                       <span className="text-white text-[15px] font-light">
-                        {request.sport}
+                        {request.sport.name}
                       </span>
                     </div>
                   </div>
@@ -390,7 +346,7 @@ export default function FindRequests() {
             {/* Create Request Button */}
             <div className="flex justify-center mt-14">
               <button
-                onClick={() => navigate("/create-request")}
+                onClick={() => navigate("/requests/create")}
                 className="px-8 py-3 bg-[#4182F9] rounded-[25px] text-white text-[22px] font-normal hover:bg-[#3571e8] transition-colors shadow-[0_8px_4px_rgba(0,0,0,0.5)]"
               >
                 Создать заявку

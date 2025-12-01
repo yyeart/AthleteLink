@@ -104,3 +104,32 @@ class SportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sport
         fields = ['id', 'name', 'min_required_players', 'max_required_players']
+
+class SportNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sport
+        fields = ['id', 'name']
+
+class AllRequestsListSerializer(serializers.ModelSerializer):
+    sport = SportNameSerializer(read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    players_info = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActivityRequest
+        fields = [
+            'id',
+            'title',
+            'sport',
+            'current_players',
+            'players_count',
+            'players_info',
+            'event_date',
+            'location',
+            'status',
+            'status_display'
+        ]
+
+    def get_players_info(self, obj):
+        return f'{obj.current_players}/{obj.players_count}'
+

@@ -15,7 +15,7 @@ import ProfileStats from "./pages/ProfileStats";
 import PublicProfile from "./pages/PublicProfile";
 import Requests from "./pages/Requests";
 import Settings from "./pages/Settings";
-import FindRequests from "./pages/FindRequests";
+import AllRequests from "./pages/AllRequests";
 import RequestData from "./pages/RequestData";
 import CreateRequest from "./pages/CreateRequest";
 import Leaderboard from "./pages/Leaderboard";
@@ -35,6 +35,7 @@ export const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<AuthRedirect />} />
+          <Route path="/requests" element={<AllRequests />} />
           {/* --- ПРИВАТНЫЕ МАРШРУТЫ (Только для авторизованных) --- */}
           <Route element={<ProtectedRoute />}>
             <Route path="/:username/profile" element={<Profile />} />
@@ -42,7 +43,6 @@ export const App = () => (
             <Route path="/:username/requests" element={<Requests />} />
             <Route path="/:username/settings" element={<Settings />} />
             <Route path="/public-profile" element={<PublicProfile />} />
-            <Route path="/find-requests" element={<FindRequests />} />
             <Route path="/request-data" element={<RequestData />} />
             <Route path="/requests/create" element={<CreateRequest />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
