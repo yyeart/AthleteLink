@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
+import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { SPORTS, DATE_FILTERS } from "@/constants/filterConstants";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 
@@ -19,12 +21,13 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function AllRequests() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
 
   const [sportFilter, setSportFilter] = useState("Все виды спорта");
   const [dateFilter, setDateFilter] = useState("По дате");
 
   const [requests, setRequests] = useState<RequestItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isRequestLoading, setisRequestLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -45,7 +48,7 @@ export default function AllRequests() {
   }, [requests, sportFilter]);
 
   const fetchPlannedRequests = useCallback(async () => {
-    setIsLoading(true);
+    setisRequestLoading(true);
     setError(null);
     try {
       const response = await fetch(`${apiUrl}/all-requests/`);
@@ -60,7 +63,7 @@ export default function AllRequests() {
       console.error("Ошибка при загрузке заявок:", err);
       setError("Не удалось загрузить запланированные заявки. Проверьте API_URL и статус бэкенда.");
     } finally {
-      setIsLoading(false);
+      setisRequestLoading(false);
     }
   }, []);
 
@@ -120,10 +123,9 @@ export default function AllRequests() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="flex min-h-screen">
-        {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting="Добрый день, Захар"
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
@@ -260,7 +262,7 @@ export default function AllRequests() {
               </div>
             </div>
                   
-            {isLoading && (
+            {isRequestLoading && (
               <div className="text-white text-center text-3xl py-10">
                 Загрузка...
               </div>
@@ -274,7 +276,7 @@ export default function AllRequests() {
               </div>
             )}
             
-            {!isLoading && filteredRequests.length === 0 && !error && (
+            {!isRequestLoading && filteredRequests.length === 0 && !error && (
               <div className="text-white text-center text-3xl py-10">
                 Нет запланированных заявок, соответствующих текущим фильтрам.
               </div>

@@ -8,7 +8,6 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Step 1 fields
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,13 +15,11 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Step 2 fields
   const [fullName, setFullName] = useState("");
   const [telegram, setTelegram] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [city, setCity] = useState("");
-  // UI states
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   

@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import HeaderMenu from "@/components/HeaderMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
@@ -8,13 +10,14 @@ import {
 
 export default function RequestData() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const requestData = REQUEST_DATA_MOCK;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="px-7 py-9">
         <HeaderMenu
-          greeting={`Добрый день, Захар`}
+          greeting={`${getTimeGreeting()}, ${user.full_name}`}
           date={getCurrentDateFormatted()}
         />
 

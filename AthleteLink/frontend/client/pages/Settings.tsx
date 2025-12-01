@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
@@ -15,6 +17,7 @@ export default function Settings() {
   const [showQuestionDropdown, setShowQuestionDropdown] = useState(false);
 
   const { logoutUser } = useAuth();
+  const { user, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const secretQuestions = [
@@ -60,16 +63,13 @@ export default function Settings() {
       <div className="flex min-h-screen">
         <SidebarNav activePage="settings" />
 
-        {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
-            greeting={`Добрый день, Захар`}
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
-          {/* Settings Card */}
           <div className="rounded-[10px] bg-white/50 p-8 relative min-h-[748px]">
-            {/* Password Change Section */}
             <h2 className="text-black text-4xl font-bold mb-6">Смена пароля</h2>
 
             <div className="flex flex-col gap-4 mb-6">
@@ -110,7 +110,6 @@ export default function Settings() {
               Изменить пароль
             </button>
 
-            {/* Secret Question Section */}
             <h2 className="text-black text-4xl font-bold mb-2">
               Секретный вопрос
             </h2>
@@ -211,7 +210,6 @@ export default function Settings() {
               </p>
             </div>
 
-            {/* Levitating MAI Logo */}
             <img
               src="/MAI_logo.png"
               alt="MAI Logo"

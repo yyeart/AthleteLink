@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import HeaderMenu from "@/components/HeaderMenu";
 import { SPORTS } from "@/constants/filterConstants";
 import { Calendar } from "@/components/ui/calendar";
+import { getTimeGreeting } from '@/components/TimeParse';
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import {
   Popover,
@@ -201,7 +202,7 @@ export default function CreateRequest() {
         {/* Main Content */}
         <div className="flex-1 p-7">
           <HeaderMenu
-            greeting="Добрый день, Захар"
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
