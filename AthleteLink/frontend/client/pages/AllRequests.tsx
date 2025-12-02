@@ -24,7 +24,7 @@ export default function AllRequests() {
   const { user, isLoading } = useAuth();
 
   const [sportFilter, setSportFilter] = useState("Все виды спорта");
-  const [dateFilter, setDateFilter] = useState("По дате");
+  const [dateFilter, setDateFilter] = useState("За все время");
 
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [isRequestLoading, setisRequestLoading] = useState(true);
@@ -93,13 +93,113 @@ export default function AllRequests() {
       );
     }
 
-    // =========================================================================
-    // СОРТИРОВКА ПО ДАТЕ
-    // =========================================================================
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    return currentRequests;
+    const dayAfterTomorrow = new Date(tomorrow);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
+
+    const startOfWeek = new Date(today);
+    const dayOfWeek = today.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    startOfWeek.setDate(today.getDate() + diffToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const startOfNextWeek = new Date(endOfWeek);
+    startOfNextWeek.setDate(endOfWeek.getDate() + 1);
+    startOfNextWeek.setHours(0, 0, 0, 0);
+
+    const endOfNextWeek = new Date(startOfNextWeek);
+    endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
+    endOfNextWeek.setHours(23, 59, 59, 999);
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    switch (dateFilter) {
+      case "За все время":
+        return [...currentRequests].sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      case "Сегодня":
+        return currentRequests.filter(request => {
+          const requestDate = new Date(request.event_date);
+          const requestDay = new Date(requestDate);
+          requestDay.setHours(0, 0, 0, 0);
+
+          return requestDay.getTime() === today.getTime();
+        }).sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      case "Завтра":
+        return currentRequests.filter(request => {
+          const requestDate = new Date(request.event_date);
+          const requestDay = new Date(requestDate);
+          requestDay.setHours(0, 0, 0, 0);
+
+          return requestDay.getTime() === tomorrow.getTime();
+        }).sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      case "На этой неделе":
+        return currentRequests.filter(request => {
+          const requestDate = new Date(request.event_date);
+          return requestDate >= startOfWeek && requestDate <= endOfWeek;
+        }).sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      case "На следующей неделе":
+        return currentRequests.filter(request => {
+          const requestDate = new Date(request.event_date);
+          return requestDate >= startOfNextWeek && requestDate <= endOfNextWeek;
+        }).sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      case "В этом месяце":
+        return currentRequests.filter(request => {
+          const requestDate = new Date(request.event_date);
+          return requestDate >= startOfMonth && requestDate <= endOfMonth;
+        }).sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+
+      default:
+        return [...currentRequests].sort((a, b) => {
+          const dateA = new Date(a.event_date).getTime();
+          const dateB = new Date(b.event_date).getTime();
+          return dateA - dateB;
+        });
+    }
   }, [requests, sportFilter, dateFilter]);
+
+
 
   const formatDateTime = (isoString: string) => {
     try {

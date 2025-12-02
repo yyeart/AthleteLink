@@ -12,6 +12,7 @@ export const DATE_FILTERS = [
   "На этой неделе",
   "На следующей неделе",
   "В этом месяце",
+  "За все время"
 ];
 
 export const RATING_SPORTS = [
