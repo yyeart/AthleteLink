@@ -220,8 +220,8 @@ export default function AllRequests() {
       return rating !== undefined && rating !== null ? `Ср. рейтинг: ~${rating.toFixed(0)}` : 'Ср. рейтинг: N/A';
   }
   
-  const user_greeting_text = user?.username
-    ? `${getTimeGreeting()}, ${user.username}`
+  const user_greeting_text = user?.full_name
+    ? `${getTimeGreeting()}, ${user.full_name}`
     : `${getTimeGreeting()}`
 
   return (
