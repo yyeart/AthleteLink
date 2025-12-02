@@ -33,7 +33,20 @@ class ActivityRequest(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, verbose_name='Вид спорта')
 
     players_count = models.PositiveIntegerField("Количество игроков")
-    current_players = models.PositiveIntegerField(default=1, verbose_name='Текущее количество игроков')
+    
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='joined_requests',
+        verbose_name='Участники',
+        blank=True
+    )
+
+    winner = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='won_requests',
+        verbose_name='Победители',
+        blank=True
+    )
 
     event_date = models.DateTimeField("Дата и время события", 
                                       default=get_default_event_date)
@@ -47,7 +60,6 @@ class ActivityRequest(models.Model):
         ('completed', 'Завершено'),
         ('cancelled', 'Отменено'),
     ]
-
     RESULT_CHOICES = [
         ('na', 'Н/Д'),
         ('cancelled', 'Отменена'),
@@ -56,7 +68,9 @@ class ActivityRequest(models.Model):
     ]
 
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='planned')
-    game_result = models.CharField('Результат', max_length=20, choices=RESULT_CHOICES, default='na')
+    game_result = models.CharField('Результат', max_length=100, choices=RESULT_CHOICES, default='na')
+
+
 
 
     class Meta:

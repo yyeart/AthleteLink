@@ -119,13 +119,18 @@ export default function AllRequests() {
       // Используем toFixed(0) для целого числа рейтинга
       return rating !== undefined && rating !== null ? `Ср. рейтинг: ~${rating.toFixed(0)}` : 'Ср. рейтинг: N/A';
   }
+  
+  const user_greeting_text = user?.username
+    ? `${getTimeGreeting()}, ${user.username}`
+    : `${getTimeGreeting()}`
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="flex min-h-screen">
         <div className="flex-1 p-7 overflow-y-auto">
+          
           <HeaderMenu
-            greeting={`${getTimeGreeting()}, ${user.full_name}`}
+            greeting={user_greeting_text}
             date={getCurrentDateFormatted()}
           />
 

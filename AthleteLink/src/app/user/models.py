@@ -39,6 +39,10 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     
+    total_wins = models.PositiveIntegerField('Всего побед', default=0)
+    total_losses = models.PositiveIntegerField('Всего поражений', default=0)
+    global_rating = models.IntegerField('Общий рейтинг', default=0)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'full_name', 'telegram', 'birth_date', 'city']
     
@@ -58,23 +62,18 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_superuser
     
+class UserSportStats(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sport_stats')
+    sport = models.ForeignKey('requests.Sport', on_delete=models.CASCADE, related_name='user_stats')
 
-class UserRating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    sport = models.ForeignKey(Sport, on_delete=models.CASCADE, verbose_name='Вид спорта')
-    rating = models.DecimalField(
-        max_digits=3, 
-        decimal_places=2,
-        validators=[MinValueValidator(0), MaxValueValidator(5)],
-        verbose_name='Рейтинг'
-    )
-    ratings_count = models.IntegerField(default=0, verbose_name='Количество оценок')
-    
+    wins = models.PositiveIntegerField('Побед', default=0)
+    losses = models.PositiveIntegerField('Поражений', default=0)
+    rating = models.IntegerField('Рейтинг в спорте', default=0)
+
     class Meta:
-        db_table = 'user_ratings'
-        verbose_name = 'Рейтинг пользователя'
-        verbose_name_plural = 'Рейтинги пользователей'
-        unique_together = ['user', 'sport']
+        unique_together = ('user', 'sport')
+        verbose_name = 'Статистика по спорту'
+        verbose_name_plural = 'Статистика по спорту'
 
 class EventParticipant(models.Model):
     STATUS_CHOICES = [

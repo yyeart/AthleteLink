@@ -1,36 +1,7 @@
 from django.contrib import admin
-from .models import User, UserRating, EventParticipant
+from .models import User, EventParticipant
 from ..requests.models import Sport, ActivityRequest
 from datetime import date
-
-@admin.register(UserRating)
-class UserRatingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'sport', 'rating', 'ratings_count', 'get_rating_stars')
-    list_filter = ('sport', 'rating')
-    search_fields = ('user__nickname', 'user__email', 'sport__name')
-    list_editable = ('rating',)
-    list_per_page = 25
-    
-    def get_rating_stars(self, obj):
-        return "★" * int(obj.rating) + "☆" * (5 - int(obj.rating))
-    get_rating_stars.short_description = 'Рейтинг'
-
-@admin.register(ActivityRequest)
-class EventAdmin(admin.ModelAdmin):
-    list_display = ('sport', 'request_creator', 'event_date', 'status', 
-                   'players_count', 'current_players', 'players_progress')
-    list_filter = ('sport', 'status', 'event_date', 'created_at')
-    search_fields = ('sport__name', 'organizer__nickname', 'organizer__email', 'address')
-    readonly_fields = ('created_at', 'current_players')
-    date_hierarchy = 'event_date'
-    list_per_page = 30
-    
-    def players_progress(self, obj):
-        if obj.required_players > 0:
-            percentage = (obj.current_players / obj.required_players) * 100
-            return f"{obj.current_players}/{obj.required_players} ({percentage:.0f}%)"
-        return "0%"
-    players_progress.short_description = 'Заполненность'
 
 @admin.register(EventParticipant)
 class EventParticipantAdmin(admin.ModelAdmin):

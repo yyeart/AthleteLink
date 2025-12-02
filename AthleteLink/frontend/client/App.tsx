@@ -44,7 +44,7 @@ export const App = () => (
             <Route path="/:username/requests" element={<ProfileOwnerGuard><Requests /></ProfileOwnerGuard>} />
             <Route path="/:username/settings" element={<ProfileOwnerGuard><Settings /></ProfileOwnerGuard>} />
             <Route path="/public-profile" element={<PublicProfile />} />
-            <Route path="/request-data" element={<RequestData />} />
+            <Route path="/requests/:id" element={<RequestData />} />
             <Route path="/requests/create" element={<CreateRequest />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Route>
