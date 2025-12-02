@@ -41,7 +41,7 @@ class User(AbstractBaseUser):
     
     total_wins = models.PositiveIntegerField('Всего побед', default=0)
     total_losses = models.PositiveIntegerField('Всего поражений', default=0)
-    global_rating = models.IntegerField('Общий рейтинг', default=0)
+    global_rating = models.IntegerField('Общий рейтинг', default=500)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'full_name', 'telegram', 'birth_date', 'city']

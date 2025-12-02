@@ -47,7 +47,8 @@ interface RequestDetail {
   is_organizer: boolean;
   is_participant: boolean;
   avgRating: number;
-  game_result: string | null;
+  game_result_text: string | null;
+  personal_result: 'Win' | 'Loss' | null;
 }
 
 interface WinnerModalProps {
@@ -236,8 +237,8 @@ export default function RequestData() {
     }
   };
 
-  const handleFinish = (winnerIds: number[], gameResult: string) => {
-    performAction('finish', { winner_ids: winnerIds, game_result: gameResult});
+  const handleFinish = (winnerIds: number[], gameResultText: string) => {
+    performAction('finish', { winners_ids: winnerIds, game_result_text: gameResultText});
   };
 
   if(isAuthLoading || isLoading) {
@@ -352,22 +353,32 @@ export default function RequestData() {
     };
     
     const renderStatusMessage = () => {
-      const { status, status_display, game_result } = requestData;
+      const { status, status_display, game_result_text, personal_result} = requestData;
 
       if (status === 'completed') {
-            return (
-                <div className="p-4 rounded-xl bg-green-900/50 border border-green-600 mb-6">
-                    <p className="text-white text-[34px] font-light leading-tight">
-                        Игра завершена. <span className="font-bold">{status_display}</span>.
+        let resultText = personal_result === 'Win' ? "Победа" : 'Поражение';
+        let resultColorClass = "bg-gray-900/50 border-gray-600";
+        if (personal_result === 'Win') {
+            resultColorClass = "bg-green-900/50 border-green-500";
+        } else if (personal_result === 'Loss') {
+            resultColorClass = "bg-red-900/50 border-red-500";
+        }
+        return (
+                <div className={`p-4 rounded-xl border mb-6 ${resultColorClass}`}>
+                    <p className="text-white text-[34px] font-bold leading-tight mb-2">
+                        {resultText}
                     </p>
-                    {game_result && ( 
-                        <p className="text-white/80 text-xl mt-2">
-                           Результат: {game_result} 
+                    <p className="text-white/80 text-xl">
+                        Статус: {status_display}
+                    </p>
+                    {game_result_text && (
+                        <p className="text-white text-2xl mt-2 font-mono bg-black/20 p-2 rounded inline-block">
+                           Счет: {game_result_text}
                         </p>
                     )}
                 </div>
             );
-        }
+      }
         
         if (status === 'cancelled') {
              return (

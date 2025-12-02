@@ -20,6 +20,26 @@ class Sport(models.Model):
     def __str__(self):
         return self.name
 
+# class GameParticipation(models.Model):
+#     RESULT_CHOICES = [
+#         ('WIN', 'Победа'),
+#         ('LOSS', 'Поражение'),
+#         ('DRAW', 'Ничья'),
+#         ('NONE', 'Не указано'),
+#     ]
+
+#     request = models.ForeignKey('ActivityRequest', on_delete=models.CASCADE, related_name='participation_results')
+
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+#     personal_result = models.CharField(max_length=4, choices=RESULT_CHOICES, default='NONE')
+
+#     class Meta:
+#         unique_together = ('request', 'user')
+
+#     def __str__(self):
+#         return f'{self.user.username} - {self.request.title} ({self.personal_result})'
+
 class ActivityRequest(models.Model):
     request_creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -33,20 +53,6 @@ class ActivityRequest(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, verbose_name='Вид спорта')
 
     players_count = models.PositiveIntegerField("Количество игроков")
-    
-    participants = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='joined_requests',
-        verbose_name='Участники',
-        blank=True
-    )
-
-    winner = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='won_requests',
-        verbose_name='Победители',
-        blank=True
-    )
 
     event_date = models.DateTimeField("Дата и время события", 
                                       default=get_default_event_date)
@@ -54,24 +60,30 @@ class ActivityRequest(models.Model):
     description = models.TextField("Описание", max_length=512, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='joined_requests',
+        verbose_name='Участники',
+        blank=True
+    )
+
+    winners = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='won_requests',
+        verbose_name='Победители',
+        blank=True
+    )
+
+    game_result_text = models.CharField('Результат (текст)', max_length=255, blank=True, null=True)
+
     STATUS_CHOICES = [
         ('planned', 'Запланировано'),
         ('active', 'Активно'),
         ('completed', 'Завершено'),
         ('cancelled', 'Отменено'),
     ]
-    RESULT_CHOICES = [
-        ('na', 'Н/Д'),
-        ('cancelled', 'Отменена'),
-        ('victory', 'Победа'),
-        ('defeat', 'Поражение'),
-    ]
 
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='planned')
-    game_result = models.CharField('Результат', max_length=100, choices=RESULT_CHOICES, default='na')
-
-
-
 
     class Meta:
         db_table = 'requests'

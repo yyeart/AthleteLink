@@ -6,6 +6,9 @@ from .models import ActivityRequest, Sport
 from .serializers import (RequestListSerializer, RequestCreateSerializer, SportSerializer,
                           AllRequestsListSerializer, RequestDetailSerializer)
 from ..user.models import UserSportStats
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class RequestListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -28,7 +31,8 @@ class RequestCreateView(generics.CreateAPIView):
     queryset = ActivityRequest.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(request_creator=self.request.user)
+        instance = serializer.save(request_creator=self.request.user)
+        instance.participants.add(self.request.user)
 
 class SportListView(generics.ListAPIView):
     queryset = Sport.objects.all()
@@ -141,11 +145,18 @@ class FinishGameView(views.APIView):
             return Response({"error": "Нельзя завершить неактивную игру"}, status=400)
         
         winners_ids = request.data.get('winners_ids', [])
+        game_result_text = request.data.get('game_result_text', '')
         if not winners_ids:
             return Response({"error": "Победители не выбраны"}, status=400)
 
         with transaction.atomic():
             activity.status = 'completed'
+            activity.game_result_text = game_result_text
+            activity.save()
+
+            if winners_ids:
+                winners = User.objects.filter(id__in=winners_ids)
+                activity.winners.set(winners)
 
             participants = activity.participants.all()
             sport = activity.sport
@@ -171,7 +182,6 @@ class FinishGameView(views.APIView):
                 participant.save()
                 stats.save()
 
-            activity.save()
         return Response({"message": "Игра завершена, статистика обновлена", 'status': 'completed'})
 
 
