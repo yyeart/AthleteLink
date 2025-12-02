@@ -183,6 +183,12 @@ export default function Login() {
             </button>
           </form>
 
+          {error && (
+          <div className="mt-6 p-4 border border-red-500 bg-red-500/10">
+            <p className="text-red-500 text-center text-sm">{error}</p>
+          </div>
+        )}
+
           {/* Register Link */}
           <p className="text-center text-white/25 text-[13px] mt-6">
             Нет учетной записи?{" "}
