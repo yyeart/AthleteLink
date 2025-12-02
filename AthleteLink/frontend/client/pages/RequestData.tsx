@@ -469,6 +469,11 @@ export default function RequestData() {
 
   return (
         <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
+          <div className="flex-1 p-7 overflow-y-auto">
+            <HeaderMenu
+              greeting={`${getTimeGreeting()}, ${user.full_name}`}
+              date={getCurrentDateFormatted()}
+            />
             <div className="px-7 py-9">
                 {actionLoading && (
                     <div className="fixed top-0 left-0 right-0 p-3 bg-blue-500 text-white text-center z-50">
@@ -587,5 +592,6 @@ export default function RequestData() {
                 onConfirm={handleFinish}
             />
         </div>
+      </div>
     );
 }
