@@ -1,25 +1,179 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { User } from "lucide-react";
+import SmallRequestCard from "@/components/SmallRequestCard";
+
+interface Request {
+  id: number;
+  eventName: string;
+  date: string;
+  sport: string;
+  applicationStatus: string;
+  gameResult: string;
+  resultColor: "gray" | "black" | "green" | "red";
+}
 
 export default function Index() {
   const { user, isLoading } = useAuth();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Состояния для выпадающего списка заявок
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [activeRequests, setActiveRequests] = useState<Request[]>([]);
+  const [isRequestsLoading, setIsRequestsLoading] = useState(true);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // Закрытие выпадающего меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Функция для загрузки активных заявок
+  useEffect(() => {
+    if (!user) return; // Загружаем только для авторизованных пользователей
+
+    const fetchActiveRequests = async () => {
+      try {
+        setIsRequestsLoading(true);
+        const response = await fetch(`${apiUrl}/requests/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Фильтруем только активные заявки со статусом "Активно"
+          const active = data.filter((req: Request) =>
+            req.applicationStatus.toLowerCase() === "активно"
+          );
+          setActiveRequests(active);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+      } finally {
+        setIsRequestsLoading(false);
+      }
+    };
+
+    fetchActiveRequests();
+  }, [apiUrl, user]);
+
   const scrollToFeatures = () => {
     const element = document.getElementById("features");
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleCardClick = (id: number) => {
+    navigate(`/requests/${id}`);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#312900] to-[#524502]">
       {/* Header */}
-      <header className="w-full px-8 md:px-16 py-6 flex justify-between items-center">
+      <header className="w-full px-8 md:px-16 py-6 flex justify-between items-center relative">
         <h1 className="text-4xl md:text-5xl lg:text-[56px] font-black text-white tracking-tight leading-[110%] letter-spacing-[-1.68px]">
           AthleteLink
         </h1>
+
+        {/* Центральный выпадающий список (только для авторизованных) */}
+        {user && (
+          <div className="absolute left-1/2 transform -translate-x-1/2" ref={dropdownRef}>
+            <button
+              onClick={toggleDropdown}
+              className="w-[250px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-between px-4 hover:bg-white/70 transition-colors relative z-10"
+            >
+              <span className="text-black text-base font-medium">
+                Активные заявки {activeRequests.length > 0 && `(${activeRequests.length})`}
+              </span>
+              <svg
+                className={`w-5 h-5 transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="black"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute top-full mt-2 w-[500px] max-h-[400px] overflow-y-auto bg-[#DDD]/95 backdrop-blur-md rounded-[15px] border border-white/30 shadow-xl z-[9999] p-4">
+                {isRequestsLoading ? (
+                  <div className="text-center py-4">
+                    <p className="text-black text-sm">Загрузка...</p>
+                  </div>
+                ) : activeRequests.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-black text-sm">Активные заявки отсутствуют</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-black text-lg font-medium">Активные заявки ({activeRequests.length})</h3>
+                      <button
+                        onClick={() => {
+                          navigate(`/${user.username}/requests/`);
+                          setIsDropdownOpen(false);
+                        }}
+                        className="text-[#4182F9] text-sm hover:underline font-medium"
+                      >
+                        Все заявки →
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {activeRequests.slice(0, 5).map((request) => (
+                        <div
+                          key={request.id}
+                          onClick={() => handleCardClick(request.id)}
+                          className="cursor-pointer"
+                        >
+                          <SmallRequestCard request={request} />
+                        </div>
+                      ))}
+                      {activeRequests.length > 5 && (
+                        <div className="text-center">
+                          <p className="text-black text-xs mt-2">
+                            ...и еще {activeRequests.length - 5} заявок
+                          </p>
+                          <button
+                            onClick={() => {
+                              navigate("/requests");
+                              setIsDropdownOpen(false);
+                            }}
+                            className="text-[#4182F9] text-xs hover:underline mt-1"
+                          >
+                            Показать все
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <nav className="flex items-center gap-6 md:gap-10">
           {user ? (
             <div className="flex items-center gap-4">
