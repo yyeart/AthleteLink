@@ -7,6 +7,7 @@ from .serializers import (RequestListSerializer, RequestCreateSerializer, SportS
                           AllRequestsListSerializer, RequestDetailSerializer)
 from ..user.models import UserSportStats
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -14,7 +15,12 @@ class RequestListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return ActivityRequest.objects.filter(request_creator=self.request.user)
+        user = self.request.user
+        queryset = ActivityRequest.objects.filter(
+            Q(request_creator=user) | Q(participants=user)
+        ).distinct()
+
+        return queryset.order_by('-event_date')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':

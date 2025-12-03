@@ -356,12 +356,14 @@ export default function RequestData() {
       const { status, status_display, game_result_text, personal_result} = requestData;
 
       if (status === 'completed') {
-        let resultText = personal_result === 'Win' ? "Победа" : 'Поражение';
+        let resultText = "Неизвестно";
         let resultColorClass = "bg-gray-900/50 border-gray-600";
         if (personal_result === 'Win') {
             resultColorClass = "bg-green-900/50 border-green-500";
+            resultText = "Победа";
         } else if (personal_result === 'Loss') {
             resultColorClass = "bg-red-900/50 border-red-500";
+            resultText = "Поражение";
         }
         return (
                 <div className={`p-4 rounded-xl border mb-6 ${resultColorClass}`}>
@@ -598,8 +600,7 @@ export default function RequestData() {
             <WinnerModal
                 isOpen={showWinnerModal}
                 onClose={() => setShowWinnerModal(false)}
-                // Фильтруем участников, чтобы не включать создателя (организатора) в список для выбора победителей, если это не предусмотрено логикой бэкенда
-                participants={participants.filter(p => p.id !== creator.id)} 
+                participants={participants}
                 onConfirm={handleFinish}
             />
         </div>

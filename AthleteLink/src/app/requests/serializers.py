@@ -31,7 +31,7 @@ class RequestListSerializer(serializers.ModelSerializer):
     currentPlayers = serializers.IntegerField(source='participants.count')
 
     applicationStatus = serializers.CharField(source='get_status_display')
-    gameResult = serializers.CharField(source='game_result_text')
+    personalResult = serializers.SerializerMethodField()
 
     resultColor = serializers.SerializerMethodField()
 
@@ -46,18 +46,30 @@ class RequestListSerializer(serializers.ModelSerializer):
             'playersCount',
             'currentPlayers',
             'applicationStatus',
-            'gameResult',
+            'personalResult',
             'resultColor'
         ]
     
+    def get_personalResult(self, obj):
+        user = self.context.get('request').user
+
+        if obj.status != 'completed' or not obj.participants.filter(id=user.id).exists():
+            return '-'
+        
+        if obj.winners.filter(id=user.id).exists():
+            return 'Win'
+        return 'Loss'
+    
     def get_resultColor(self, obj):
-        result = obj.game_result_text
-        if result == 'victory':
-            return 'green'
-        elif result == 'defeat':
-            return 'red'
-        elif result == 'cancelled':
+        personal_result = self.get_personalResult(obj)
+
+        if obj.status == 'cancelled':
             return 'black'
+        
+        if personal_result == 'Win':
+            return 'green'
+        elif personal_result == 'Loss':
+            return 'red'
         return 'gray'
 
 
@@ -191,7 +203,10 @@ class RequestDetailSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return None
         
-        if obj.participants.filter(id=request.user.id).exists():
+        if obj.status != 'completed':
+            return None
+
+        if not obj.participants.filter(id=request.user.id).exists():
             return None
         
         if obj.winners.filter(id=request.user.id).exists():

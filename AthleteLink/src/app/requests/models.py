@@ -20,26 +20,6 @@ class Sport(models.Model):
     def __str__(self):
         return self.name
 
-# class GameParticipation(models.Model):
-#     RESULT_CHOICES = [
-#         ('WIN', 'Победа'),
-#         ('LOSS', 'Поражение'),
-#         ('DRAW', 'Ничья'),
-#         ('NONE', 'Не указано'),
-#     ]
-
-#     request = models.ForeignKey('ActivityRequest', on_delete=models.CASCADE, related_name='participation_results')
-
-#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-#     personal_result = models.CharField(max_length=4, choices=RESULT_CHOICES, default='NONE')
-
-#     class Meta:
-#         unique_together = ('request', 'user')
-
-#     def __str__(self):
-#         return f'{self.user.username} - {self.request.title} ({self.personal_result})'
-
 class ActivityRequest(models.Model):
     request_creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
