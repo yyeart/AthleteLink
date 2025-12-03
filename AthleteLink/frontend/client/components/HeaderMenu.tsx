@@ -1,9 +1,22 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import SmallRequestCard from "@/components/SmallRequestCard";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderMenuProps {
   greeting: string;
   date: string;
   onProfileClick?: () => void;
+}
+
+interface Request {
+  id: number;
+  eventName: string;
+  date: string;
+  sport: string;
+  applicationStatus: string;
+  personalResult: 'Win' | 'Loss' | '-' | string;
+  resultColor: "gray" | "black" | "green" | "red";
 }
 
 export default function HeaderMenu({
@@ -12,6 +25,66 @@ export default function HeaderMenu({
   onProfileClick,
 }: HeaderMenuProps) {
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const [activeRequests, setActiveRequests] = useState<Request[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // Закрытие выпадающего меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Функция для загрузки активных заявок
+  useEffect(() => {
+    const fetchActiveRequests = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${apiUrl}/requests/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Фильтруем только активные заявки со статусом "Активно"
+          const active = data.filter((req: Request) =>
+            req.applicationStatus.toLowerCase() === "активно"
+          );
+          setActiveRequests(active);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchActiveRequests();
+  }, [apiUrl]);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleCardClick = (id: number) => {
+    navigate(`/requests/${id}`);
+    setIsDropdownOpen(false);
+  };
 
   return (
     <div className="flex items-center justify-between mb-12">
@@ -22,8 +95,83 @@ export default function HeaderMenu({
         <p className="text-white text-base font-light">{date}</p>
       </div>
 
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={toggleDropdown}
+          className="w-[250px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-between px-4 hover:bg-white/70 transition-colors relative z-10"
+        >
+          <span className="text-black text-base font-medium">
+            Активные заявки {activeRequests.length > 0 && `(${activeRequests.length})`}
+          </span>
+          <svg
+            className={`w-5 h-5 transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="black"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {isDropdownOpen && (
+          <div className="absolute top-full mt-2 w-[500px] max-h-[400px] overflow-y-auto bg-[#DDD]/95 backdrop-blur-md rounded-[15px] border border-white/30 shadow-xl z-[9999] p-4">
+            {isLoading ? (
+              <div className="text-center py-4">
+                <p className="text-black text-sm">Загрузка...</p>
+              </div>
+            ) : activeRequests.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-black text-sm">Активные заявки отсутствуют</p>
+              </div>
+            ) : (
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-black text-lg font-medium">Активные заявки ({activeRequests.length})</h3>
+                  <button
+                    onClick={() => {
+                      navigate(`/${user.username}/requests/`);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="text-[#4182F9] text-sm hover:underline font-medium"
+                  >
+                    Все заявки →
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {activeRequests.slice(0, 5).map((request) => (
+                    <div
+                      key={request.id}
+                      onClick={() => handleCardClick(request.id)}
+                      className="cursor-pointer"
+                    >
+                      <SmallRequestCard request={request} />
+                    </div>
+                  ))}
+                  {activeRequests.length > 5 && (
+                    <div className="text-center">
+                      <p className="text-black text-xs mt-2">
+                        ...и еще {activeRequests.length - 5} заявок
+                      </p>
+                      <button
+                        onClick={() => {
+                          navigate("/requests");
+                          setIsDropdownOpen(false);
+                        }}
+                        className="text-[#4182F9] text-xs hover:underline mt-1"
+                      >
+                        Показать все
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center gap-4">
-        {/* Search */}
         <button
           onClick={() => navigate("/requests")}
           className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center hover:bg-white/70 transition-colors"
@@ -42,7 +190,6 @@ export default function HeaderMenu({
           </svg>
         </button>
 
-        {/* Stats */}
         <button
           onClick={() => navigate("/leaderboard")}
           className="w-[46px] h-[47px] rounded-[10px] bg-white/50 flex items-center justify-center hover:bg-white/70 transition-colors"
@@ -85,7 +232,6 @@ export default function HeaderMenu({
           </svg>
         </div>
 
-        {/* Profile Picture */}
         <button onClick={onProfileClick || (() => navigate("/profile"))}>
           <img
             src="/placeholder_avatar.jpg"
