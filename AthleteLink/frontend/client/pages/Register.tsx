@@ -7,6 +7,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Добавлено состояние для ошибки
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -22,10 +23,9 @@ export default function Register() {
   const [city, setCity] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-  
+
   const datePickerRef = useRef<HTMLDivElement>(null);
   const cityDropdownRef = useRef<HTMLDivElement>(null);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,24 +53,27 @@ export default function Register() {
       setSelectedDate(date);
       setBirthdate(format(date, "dd.MM.yyyy"));
       setShowDatePicker(false);
+      setError(null); // Сбрасываем ошибку при изменении
     }
   };
 
   const handleCitySelect = (selectedCity: string) => {
     setCity(selectedCity);
     setShowCityDropdown(false);
+    setError(null); // Сбрасываем ошибку при изменении
   };
 
   const handleContinueStep1 = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Сбрасываем ошибку
 
     if (!username || !email || !password || !confirmPassword) {
-      alert("Пожалуйста, заполните все поля!");
+      setError("Пожалуйста, заполните все поля!");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Пароли не совпадают!");
+      setError("Пароли не совпадают!");
       return;
     }
 
@@ -79,23 +82,22 @@ export default function Register() {
 
   const handleRegisterStep2 = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Сбрасываем ошибку перед отправкой
+    setIsLoading(true);
 
-    // Validate step 2
     if (!fullName || !telegram || !birthdate || !city) {
-      alert("Пожалуйста, заполните все поля!");
+      setError("Пожалуйста, заполните все поля!");
+      setIsLoading(false);
       return;
     }
 
     // Validate birthdate format
     if (!validateDate(birthdate)) {
-      alert(
-        "Пожалуйста, введите корректную дату рождения в формате ДД.ММ.ГГГГ",
-      );
+      setError("Пожалуйста, введите корректную дату рождения в формате ДД.ММ.ГГГГ");
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
-    
     const [day, month, year] = birthdate.split(".");
     const formattedDate = `${year}-${month}-${day}`;
 
@@ -104,7 +106,7 @@ export default function Register() {
       email,
       password,
       password_confirm: confirmPassword,
-      full_name: fullName,             
+      full_name: fullName,
       telegram,
       birth_date: formattedDate,
       city,
@@ -127,19 +129,42 @@ export default function Register() {
         navigate(`/${data.username}/profile/`);
       } else {
         console.error("Registration failed:", data);
-        let errorMsg = "Ошибка регистрации:\n";
+        let errorMessage = "Ошибка регистрации";
         if (data.errors) {
-             Object.entries(data.errors).forEach(([field, msgs]: [string, any]) => {
-                errorMsg += `${field}: ${msgs.join(', ')}\n`;
-             });
-        } else {
-             errorMsg += "Произошла неизвестная ошибка";
+          // Обрабатываем различные форматы ошибок
+          if (data.errors.non_field_errors) {
+            errorMessage = data.errors.non_field_errors[0];
+          } else if (data.errors.username) {
+            errorMessage = `Имя пользователя: ${data.errors.username[0]}`;
+          } else if (data.errors.email) {
+            errorMessage = `Email: ${data.errors.email[0]}`;
+          } else if (data.errors.password) {
+            errorMessage = `Пароль: ${data.errors.password[0]}`;
+          } else if (data.errors.full_name) {
+            errorMessage = `Имя: ${data.errors.full_name[0]}`;
+          } else if (data.errors.telegram) {
+            errorMessage = `Telegram: ${data.errors.telegram[0]}`;
+          } else if (data.errors.birth_date) {
+            errorMessage = `Дата рождения: ${data.errors.birth_date[0]}`;
+          } else if (data.errors.city) {
+            errorMessage = `Город: ${data.errors.city[0]}`;
+          } else {
+            // Если ошибки в неизвестном формате, собираем все в строку
+            const errorMessages = Object.entries(data.errors)
+              .map(([field, msgs]: [string, any]) => `${field}: ${msgs.join(', ')}`)
+              .join('; ');
+            errorMessage = errorMessages;
+          }
+        } else if (data.detail) {
+          errorMessage = data.detail;
+        } else if (data.message) {
+          errorMessage = data.message;
         }
-        alert(errorMsg);
+        setError(errorMessage);
       }
     } catch (error) {
       console.error("Network error:", error);
-      alert("Ошибка соединения с сервером. Проверье соединение с интернетом или статус сервера.");
+      setError("Ошибка соединения с сервером. Проверьте соединение с интернетом или статус сервера.");
     } finally {
       setIsLoading(false);
     }
@@ -147,6 +172,48 @@ export default function Register() {
 
   const handleBackToStep1 = () => {
     setStep(1);
+    setError(null); // Сбрасываем ошибку при возврате
+  };
+
+  // Функции для сброса ошибки при изменении полей
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    setError(null);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setError(null);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    setError(null);
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setError(null);
+  };
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value);
+    setError(null);
+  };
+
+  const handleTelegramChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTelegram(e.target.value);
+    setError(null);
+  };
+
+  const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBirthdate(e.target.value);
+    setError(null);
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCity(e.target.value);
+    setError(null);
   };
 
   return (
@@ -172,6 +239,13 @@ export default function Register() {
             Регистрация в AthleteLink
           </h1>
 
+          {/* Отображение ошибки */}
+          {error && (
+            <div className="mb-6 p-4 border border-red-500 bg-red-500/10">
+              <p className="text-red-500 text-center text-sm">{error}</p>
+            </div>
+          )}
+
           {step === 1 ? (
             // STEP 1: Basic Account Info
             <form onSubmit={handleContinueStep1} className="space-y-6">
@@ -184,7 +258,7 @@ export default function Register() {
                   <input
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={handleUsernameChange}
                     placeholder="pauchuck"
                     className="w-full bg-transparent text-[#616161] text-base outline-none placeholder:text-[#616161]"
                     required
@@ -202,7 +276,7 @@ export default function Register() {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleEmailChange}
                     placeholder="mai@mai.education"
                     className="w-full bg-transparent text-[#757575] text-base outline-none placeholder:text-[#757575]"
                     required
@@ -221,7 +295,7 @@ export default function Register() {
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={handlePasswordChange}
                       placeholder="**********"
                       className="flex-1 bg-transparent text-[#757575] text-base outline-none placeholder:text-[#757575]"
                       required
@@ -252,7 +326,7 @@ export default function Register() {
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      onChange={handleConfirmPasswordChange}
                       placeholder="**********"
                       className="flex-1 bg-transparent text-[#757575] text-base outline-none placeholder:text-[#757575]"
                       required
@@ -298,7 +372,7 @@ export default function Register() {
                   <input
                     type="text"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={handleFullNameChange}
                     placeholder="Захар Смирнов"
                     className="w-full bg-transparent text-[#616161] text-base outline-none placeholder:text-[#616161]"
                     required
@@ -316,7 +390,7 @@ export default function Register() {
                   <input
                     type="text"
                     value={telegram}
-                    onChange={(e) => setTelegram(e.target.value)}
+                    onChange={handleTelegramChange}
                     placeholder="@Lovely_Specty"
                     className="w-full bg-transparent text-[#757575] text-base outline-none placeholder:text-[#757575]"
                     required
@@ -348,7 +422,7 @@ export default function Register() {
                     <input
                       type="text"
                       value={birthdate}
-                      onChange={(e) => setBirthdate(e.target.value)}
+                      onChange={handleBirthdateChange}
                       placeholder="Вводите в формате ДД.ММ.ГГГГ"
                       className="flex-1 bg-transparent text-[#757575] text-base outline-none placeholder:text-[#757575]"
                       required
@@ -381,7 +455,7 @@ export default function Register() {
                     <input
                       type="text"
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={handleCityChange}
                       onClick={() => setShowCityDropdown(true)}
                       placeholder="Введите или выберите из выпадающего списка"
                       className="flex-1 bg-transparent text-[#757575] text-[15px] outline-none placeholder:text-[#757575]"
