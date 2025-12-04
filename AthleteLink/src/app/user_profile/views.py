@@ -12,6 +12,16 @@ from .serializers import UserFullStatsSerializer
 from .serializers import UserSerializer
 from .permissions import IsProfileOwner
 
+from rest_framework.generics import RetrieveUpdateAPIView
+
+class CurrentUserUpdateView(RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
 class DebugView(APIView):
     permission_classes = [AllowAny]
     

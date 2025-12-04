@@ -7,10 +7,11 @@ import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import { User } from "lucide-react";
+import { getCookie } from "@/lib/csrf";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, refetchUser } = useAuth();
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
@@ -54,16 +55,67 @@ export default function Profile() {
     return <div>Ошибка: пользователь не авторизован</div>
   }
 
-  const handleSaveSettings = () => {
-    console.log("Saving settings:", {
-      fullName,
-      username,
-      gender,
-      city,
-      birthdate,
-      telegram,
-    });
-  };
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+    const parseDateToISO = (d: string) => {
+      if (!d) return null;
+      // ожидаем формат dd.MM.yyyy или yyyy-MM-dd
+      if (d.includes('.')) {
+        const parts = d.split('.');
+        if (parts.length !== 3) return null;
+        const [dd, mm, yyyy] = parts;
+        return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+      }
+      // если уже ISO-ish
+      return d;
+    };
+
+    const handleSaveSettings = async () => {
+      const csrfToken = getCookie('csrftoken');
+      if (!csrfToken) {
+        console.error('CSRF token is missing');
+        // можно показать UI-уведомление
+        return;
+      }
+
+      const parsedDate = parseDateToISO(birthdate);
+
+      const body: any = {
+        full_name: fullName,
+        username: username,
+        telegram: telegram,
+        city: city,
+        gender: gender,
+      };
+      if (parsedDate) body.birth_date = parsedDate;
+
+      try {
+        const response = await fetch(`${apiUrl}/profile/me/update/`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => null);
+          console.error("Ошибка обновления профиля:", response.status, data);
+          // можно отобразить ошибки в UI
+          return;
+        }
+
+        // обновить данные пользователя в приложении
+        await refetchUser();
+        console.log("Профиль успешно обновлён");
+        // тут можно показать уведомление пользователю
+      } catch (error) {
+        console.error("Network error:", error);
+      }
+    };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
