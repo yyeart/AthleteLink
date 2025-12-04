@@ -5,6 +5,7 @@ app_name = 'profile'
 
 urlpatterns = [
     path('me/', views.CurrentUserView.as_view(), name='current_user'),
+    path('me/update/', views.CurrentUserUpdateView.as_view(), name='update_user'),
     path('<str:username>/', views.profile_detail, name='detail'),
     path('<str:username>/stats/', views.stats_view, name='stats'),
     path('<str:username>/inactive/', views.inactive_view, name='inactive'),
