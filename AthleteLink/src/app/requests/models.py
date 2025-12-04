@@ -36,7 +36,17 @@ class ActivityRequest(models.Model):
 
     event_date = models.DateTimeField("Дата и время события", 
                                       default=get_default_event_date)
+    
     location = models.CharField("Место проведения", max_length=255, default='Москва')
+    latitude = models.DecimalField(
+        max_digits=12, decimal_places=7,
+        null=True, blank=True, verbose_name='Широта'
+    )
+    longitude = models.DecimalField(
+        max_digits=12, decimal_places=7,
+        null=True, blank=True, verbose_name='Долгота'
+    )
+
     description = models.TextField("Описание", max_length=512, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

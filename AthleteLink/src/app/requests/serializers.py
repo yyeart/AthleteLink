@@ -88,9 +88,11 @@ class RequestCreateSerializer(serializers.ModelSerializer):
             'date', 
             'time', 
             'location', 
-            'description'
+            'description',
+            'latitude',
+            'longitude'
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'request_creator', 'status']
 
     def validate(self, data):
         date_str = data.get('date')
@@ -195,7 +197,7 @@ class RequestDetailSerializer(serializers.ModelSerializer):
             'creator', 'participants',
             'is_organizer', 'is_participant',
             'game_result_text',
-            'personal_result'
+            'personal_result', 'longitude', 'latitude'
         ]
 
     def get_personal_result(self, obj):
