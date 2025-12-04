@@ -313,7 +313,6 @@ export default function ProfileStats() {
                                       <div className="flex-1">
                                           <h4
                                               className="text-white text-base font-bold flex items-center gap-2"
-                                              style={{ WebkitTextStroke: "1px black" }}
                                           >
                                               {user?.full_name || 'Неизвестный'}
                                               {/* Иконка лучшего спорта рядом с ником */}
@@ -326,8 +325,7 @@ export default function ProfileStats() {
                                               )}
                                           </h4>
                                           <p
-                                              className="text-xs font-bold bg-gradient-to-b from-[#A2E1B1] via-[#AE349C] to-white bg-clip-text text-transparent"
-                                              style={{ WebkitTextStroke: "1px black" }}
+                                              className="text-xs font-bold bg-gradient-to-b from-[#BCFFAB] via-[#F596FF] to-white bg-clip-text text-transparent"
                                           >
                                               Уровень престижа: {prestige_info.level}
                                               <br />
@@ -339,7 +337,6 @@ export default function ProfileStats() {
 
                                       <div
                                           className="text-white text-2xl font-bold"
-                                          style={{ WebkitTextStroke: "1px black" }}
                                       >
                                           #{global_rank_position}
                                       </div>

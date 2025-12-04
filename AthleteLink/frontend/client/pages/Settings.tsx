@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
+import { getCookie } from "@/lib/csrf"; // <- убедись, что этот модуль существует
+
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -19,6 +22,12 @@ export default function Settings() {
   const { user, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // ошибки/статус смены пароля (показываются под требованиями и над кнопкой)
+  const [passwordErrors, setPasswordErrors] = useState<string[] | null>(null);
+  const [passwordErrorSingle, setPasswordErrorSingle] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const secretQuestions = [
     "Имя вашего первого питомца?",
     "Название вашей первой школы?",
@@ -26,8 +35,89 @@ export default function Settings() {
     "Ваш любимый город?",
   ];
 
-  const handleChangePassword = () => {
-    console.log("Changing password...");
+  // Простая клиентская проверка требований:
+  const checkClientPasswordRequirements = (pwd: string) => {
+    const errors: string[] = [];
+    if (pwd.length < 8) errors.push("Не менее 8 символов.");
+    if (!/[A-Z]/.test(pwd)) errors.push("Не менее 1 заглавной буквы.");
+    if (!/[a-z]/.test(pwd)) errors.push("Не менее 1 строчной буквы.");
+    if (!/[0-9]/.test(pwd)) errors.push("Не менее 1 цифры.");
+    return errors;
+  };
+
+  const handleChangePassword = async () => {
+    // сброс UI-статусов
+    setPasswordErrors(null);
+    setPasswordErrorSingle(null);
+    setPasswordSuccess(null);
+
+    // базовая проверка
+    if (!currentPassword) {
+      setPasswordErrorSingle("Введите текущий пароль.");
+      return;
+    }
+    if (!newPassword) {
+      setPasswordErrorSingle("Введите новый пароль.");
+      return;
+    }
+
+    const clientErrors = checkClientPasswordRequirements(newPassword);
+    if (clientErrors.length > 0) {
+      setPasswordErrors(clientErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const csrfToken = getCookie('csrftoken');
+      if (!csrfToken) {
+        setPasswordErrorSingle("CSRF token отсутствует. Попробуйте перезагрузить страницу.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const resp = await fetch(`${apiUrl}/profile/change-password/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      if (resp.ok) {
+        const data = await resp.json().catch(() => null);
+        setPasswordSuccess(data?.detail || "Пароль успешно изменён.");
+        setCurrentPassword("");
+        setNewPassword("");
+      } else {
+        // ожидаем JSON с { error: "..."} или { errors: [...] }
+        let json: any = null;
+        try { json = await resp.json(); } catch (e) { json = null; }
+
+        if (json) {
+          if (json.errors && Array.isArray(json.errors)) {
+            setPasswordErrors(json.errors);
+          } else if (json.error) {
+            setPasswordErrorSingle(json.error);
+          } else {
+            setPasswordErrorSingle("Не удалось изменить пароль. Попробуйте ещё раз.");
+          }
+        } else {
+          setPasswordErrorSingle(`Ошибка сервера: ${resp.status}`);
+        }
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      setPasswordErrorSingle("Сетевая ошибка. Проверьте соединение.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSaveSecretQuestion = () => {
@@ -56,6 +146,14 @@ export default function Settings() {
       }
     }
   };
+
+  if (isLoading) {
+    return <div>Загрузка настроек...</div>
+  }
+
+  if (!user) {
+    return <div>Ошибка: пользователь не авторизован</div>
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
@@ -97,18 +195,45 @@ export default function Settings() {
               />
             </div>
 
-            <p className="text-black text-base opacity-80 mb-6 max-w-[526px]">
+            <p className="text-black text-base opacity-80 mb-3 max-w-[526px]">
               Требования: не менее 8 символов, не менее 1 заглавной буквы, не
               менее 1 строчной буквы, не менее 1 цифры
             </p>
 
+            {/* Ошибки выводятся ниже требований и над кнопкой */}
+            <div className="mb-4 max-w-[526px]">
+              {passwordSuccess && (
+                <div className="text-green-700 bg-green-100 p-3 rounded-md mb-2">
+                  {passwordSuccess}
+                </div>
+              )}
+
+              {passwordErrorSingle && (
+                <div className="text-red-700 bg-red-100 p-3 rounded-md mb-2">
+                  {passwordErrorSingle}
+                </div>
+              )}
+
+              {passwordErrors && passwordErrors.length > 0 && (
+                <div className="text-red-700 bg-red-100 p-3 rounded-md mb-2">
+                  <ul className="list-disc pl-5">
+                    {passwordErrors.map((err, i) => (
+                      <li key={i}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleChangePassword}
-              className="w-[217px] h-[38px] rounded-lg bg-[#4182F9] text-white text-base text-center mb-20"
+              className={`w-[217px] h-[38px] rounded-lg text-white text-base text-center mb-20 ${isSubmitting ? 'bg-[#6ea0ff]/60' : 'bg-[#4182F9]'}`}
+              disabled={isSubmitting}
             >
-              Изменить пароль
+              {isSubmitting ? "Отправка..." : "Изменить пароль"}
             </button>
 
+            {/* --- остальная часть страницы (секретный вопрос и др.) --- */}
             <h2 className="text-black text-4xl font-bold mb-2">
               Секретный вопрос
             </h2>
@@ -211,7 +336,6 @@ export default function Settings() {
 
             <img
               src="/MAI_logo.png"
-              alt="MAI Logo"
               className="absolute right-8 top-[280px] w-[367px] h-[354px] object-contain animate-levitate-active"
             />
           </div>

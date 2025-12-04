@@ -13,6 +13,11 @@ from .serializers import UserSerializer
 from .permissions import IsProfileOwner
 
 from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework import status
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 class CurrentUserUpdateView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer
@@ -20,7 +25,6 @@ class CurrentUserUpdateView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
 
 class DebugView(APIView):
     permission_classes = [AllowAny]
@@ -77,4 +81,33 @@ def games_view(request, username):
 def settings_view(request, username):
     return render(request, 'user_profile/settings.html')
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    data = request.data or {}
+
+    current_password = data.get("current_password", "")
+    new_password = data.get("new_password", "")
+
+    if not user.check_password(current_password):
+        return Response({"error": "Текущий пароль неверен."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if user.check_password(new_password):
+        return Response({"error": "Новый пароль не должен совпадать с текущим."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(new_password, user=user)
+    except ValidationError as e:
+        return Response({"errors": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+
+    try:
+        update_session_auth_hash(request, user)
+    except Exception:
+        pass
+
+    return Response({"detail": "Пароль успешно изменён."}, status=status.HTTP_200_OK)
 
