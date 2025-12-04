@@ -410,7 +410,7 @@ export default function RequestData() {
         }
 
         return (
-            <div className="mb-6">
+            <div className="mt-[100px]">
                 <p className="text-white text-[34px] font-light leading-tight">
                     Заявка в статусе <span className="font-bold">{status_display}</span>.
                 </p>
@@ -488,149 +488,148 @@ export default function RequestData() {
   } = requestData;
 
   return (
-        <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
-          <div className="flex-1 p-7 overflow-y-auto">
-            <HeaderMenu
-              greeting={`${getTimeGreeting()}, ${user.full_name}`}
-              date={getCurrentDateFormatted()}
-            />
-            <div className="px-7 py-9">
-                {actionLoading && (
-                    <div className="fixed top-0 left-0 right-0 p-3 bg-blue-500 text-white text-center z-50">
-                        Выполняется действие...
-                    </div>
-                )}
-                {error && (
-                    <div className="fixed top-0 left-0 right-0 p-3 bg-red-600 text-white text-center z-50">
-                        Ошибка: {error}
-                    </div>
-                )}
+      <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
+        <div className="flex-1 p-7 overflow-y-auto">
+          <HeaderMenu
+            greeting={`${getTimeGreeting()}, ${user.full_name}`}
+            date={getCurrentDateFormatted()}
+          />
+          <div className="px-7 py-9">
+            {actionLoading && (
+              <div className="fixed top-0 left-0 right-0 p-3 bg-blue-500 text-white text-center z-50">
+                Выполняется действие...
+              </div>
+            )}
+            {error && (
+              <div className="fixed top-0 left-0 right-0 p-3 bg-red-600 text-white text-center z-50">
+                Ошибка: {error}
+              </div>
+            )}
 
-                <div className="relative">
-                    <div className="rounded-[10px] bg-[#797777]/50 px-9 py-12 min-h-[1064px]">
-                        <div className="flex gap-8">
-                            
-                            {/* ЛЕВАЯ КОЛОНКА (ДЕТАЛИ И УЧАСТНИКИ) */}
-                            <div className="flex-1">
-                                <div className="border-[0.5px] border-white rounded-[50px] p-8 mb-8 relative">
-                                    <h1 className="text-white text-[50px] font-light text-center mb-8">
-                                        Заявка №{requestNumber}
-                                    </h1>
+            <div className="relative">
+              <div className="rounded-[10px] bg-[#797777]/50 px-9 py-12 min-h-[1064px]">
+                <div className="flex gap-8">
+                  {/* ЛЕВАЯ КОЛОНКА (ДЕТАЛИ И УЧАСТНИКИ) */}
+                  <div className="flex-1">
+                    <div className="border-[0.5px] border-white rounded-[50px] p-8 mb-8 relative">
+                      <h1 className="text-white text-[50px] font-light text-center mb-8">
+                        Заявка №{requestNumber}
+                      </h1>
 
-                                    <div className="mb-6">
-                                        <h2 className="text-white text-[30px] font-light mb-2">
-                                            {title}
-                                        </h2>
-                                        <p className="text-white text-[25px] font-light">
-                                            {sport}
-                                        </p>
-                                    </div>
+                      <div className="mb-6">
+                        <h2 className="text-white text-[30px] font-light mb-2">
+                          {title}
+                        </h2>
+                        <p className="text-white text-[25px] font-light">
+                          {sport}
+                        </p>
+                      </div>
 
-                                    <div className="mb-6">
-                                        <p className="text-white text-[17px] font-light leading-relaxed">
-                                            Описание игры:
-                                            <br />
-                                            {description || "Описание отсутствует."}
-                                        </p>
-                                    </div>
+                      <div className="mb-6">
+                        <p className="text-white text-[17px] font-light leading-relaxed">
+                          Описание игры:
+                          <br />
+                          {description || "Описание отсутствует."}
+                        </p>
+                      </div>
 
-                                    <div className="flex gap-3 justify-end mb-6">
-                                        {/* Ср. рейтинг */}
-                                        <div className="border border-white rounded-[50px] px-5 py-2">
-                                            <span className="text-white text-[17px] font-light">
-                                                Ср. рейтинг: {avgRating}
-                                            </span>
-                                        </div>
-                                        {/* Дата/Время */}
-                                        <div className="border border-white rounded-[50px] px-4 py-2">
-                                            <span className="text-white text-base font-light">
-                                                {dateTime}
-                                            </span>
-                                        </div>
-                                        {/* Игроки */}
-                                        <div className="border border-white rounded-[50px] px-4 py-2">
-                                            <span className="text-white text-[15px] font-light">
-                                                Игроков: {playerCount}/{maxPlayers}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* СПИСОК УЧАСТНИКОВ */}
-                                    <div className="relative">
-                                        {/* Скроллбар-заглушка */}
-                                        <div className="w-[10px] h-[71px] rounded-[40px] bg-[#5D5D5D] absolute right-2 top-[255px] hidden md:block"></div>
-
-                                        <div className="grid grid-cols-4 gap-x-[18px] gap-y-3 mb-8 max-h-[260px] overflow-y-auto pr-4">
-                                            {/* Сначала организатор */}
-                                            {renderParticipant(creator, true)}
-
-                                            {/* Затем остальные участники */}
-                                            {participants.filter(p => p.id !== creator.id).map(p => renderParticipant(p, false))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* КАРТА МЕСТОПОЛОЖЕНИЯ */}
-                                <div className="my-8">
-                                    <h3 className="text-3xl font-semibold mb-4 text-white">
-                                        Местоположение
-                                    </h3>
-                                    <div className="rounded-[40px] shadow-lg overflow-hidden">
-                                    {showMap ? (
-                                        <DisplayMap
-                                            latitude={requestData.latitude}
-                                            longitude={requestData.longitude}
-                                            address={requestData.location}
-                                            height="400px" // Можно настроить высоту
-                                        />
-                                    ) : (
-                                        <p className="p-8 bg-[#DDD]/50 text-center">
-                                            Данные о местоположении загружаются или отсутствуют.
-                                        </p>
-                                    )}
-                                    </div>
-                                    
-                                </div>
-
-                  
-                            </div>
-
-                            {/* ПРАВАЯ КОЛОНКА (СТИКЕР И КНОПКИ ДЕЙСТВИЙ) */}
-                            <div className="w-[412px] flex flex-col">
-
-
-                                {/* СООБЩЕНИЕ О СТАТУСЕ */}
-                                {renderStatusMessage()}
-                                
-                                {/* ДИНАМИЧЕСКИЕ КНОПКИ */}
-                                <div className="flex flex-col gap-6">
-                                    {renderActionButtons()}
-                                </div>
-
-                                {/* КНОПКА НАЗАД (если динамическая не отображается) */}
-                                {requestData.status !== 'completed' && requestData.status !== 'cancelled' && (
-                                    <button
-                                      onClick={() => navigate("/profile")}
-                                      className="rounded-[25px] bg-[#1D2C4D] shadow-[0_8px_4px_0_rgba(0,0,0,0.50)] px-4 py-7 mt-6 hover:bg-[#2a3d5e] transition-colors"
-                                    >
-                                        <span className="text-white text-[25px] font-normal">
-                                            Вернуться в профиль
-                                        </span>
-                                    </button>
-                                )}
-                            </div>
+                      <div className="flex gap-3 justify-end mb-6">
+                        {/* Ср. рейтинг */}
+                        <div className="border border-white rounded-[50px] px-5 py-2">
+                          <span className="text-white text-[17px] font-light">
+                            Ср. рейтинг: {avgRating}
+                          </span>
                         </div>
-                    </div>
-                </div>
-            </div>
+                        {/* Дата/Время */}
+                        <div className="border border-white rounded-[50px] px-4 py-2">
+                          <span className="text-white text-base font-light">
+                            {dateTime}
+                          </span>
+                        </div>
+                        {/* Игроки */}
+                        <div className="border border-white rounded-[50px] px-4 py-2">
+                          <span className="text-white text-[15px] font-light">
+                            Игроков: {playerCount}/{maxPlayers}
+                          </span>
+                        </div>
+                      </div>
 
-            {/* МОДАЛЬНОЕ ОКНО */}
-            <WinnerModal
-                isOpen={showWinnerModal}
-                onClose={() => setShowWinnerModal(false)}
-                participants={participants}
-                onConfirm={handleFinish}
-            />
+                      {/* СПИСОК УЧАСТНИКОВ */}
+                      <div className="relative">
+                        <div className="grid grid-cols-4 gap-x-[18px] gap-y-3 mb-8 max-h-[260px] overflow-y-auto pr-4">
+                          {/* Сначала организатор */}
+                          {renderParticipant(creator, true)}
+
+                          {/* Затем остальные участники */}
+                          {participants.filter(p => p.id !== creator.id).map(p => renderParticipant(p, false))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="my-8">
+                      <h3 className="text-3xl font-semibold mb-4 text-white">
+                          Местоположение
+                      </h3>
+                      <div className="rounded-[40px] shadow-lg overflow-hidden">
+                      {showMap ? (
+                          <DisplayMap
+                              latitude={requestData.latitude}
+                              longitude={requestData.longitude}
+                              address={requestData.location}
+                              height="400px" // Можно настроить высоту
+                          />
+                      ) : (
+                          <p className="p-8 bg-[#DDD]/50 text-center">
+                              Данные о местоположении загружаются или отсутствуют.
+                          </p>
+                      )}
+                      </div>
+                      
+                  </div>
+                  </div>
+
+                  <div className="w-[412px] flex flex-col">
+                    <div className="relative mb-[30px] flex justify-end">
+                      <div className="relative w-110 h-110">
+                        <img
+                          src="/basket_decor.webp"
+                          className="w-full h-full object-contain rounded-xl"
+                        />
+                      </div>
+                    </div>
+
+                    {/* СООБЩЕНИЕ О СТАТУСЕ */}
+                    {renderStatusMessage()}
+
+                    {/* ДИНАМИЧЕСКИЕ КНОПКИ */}
+                    <div className="flex flex-col gap-6">
+                      {renderActionButtons()}
+                    </div>
+
+                    {/* КНОПКА НАЗАД (если динамическая не отображается) */}
+                    {requestData.status !== 'completed' && requestData.status !== 'cancelled' && (
+                      <button
+                        onClick={() => navigate("/profile")}
+                        className="rounded-[25px] bg-[#1D2C4D] shadow-[0_8px_4px_0_rgba(0,0,0,0.50)] px-4 py-7 mt-6 hover:bg-[#2a3d5e] transition-colors"
+                      >
+                        <span className="text-white text-[25px] font-normal">
+                          Вернуться в профиль
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* МОДАЛЬНОЕ ОКНО */}
+          <WinnerModal
+            isOpen={showWinnerModal}
+            onClose={() => setShowWinnerModal(false)}
+            participants={participants}
+            onConfirm={handleFinish}
+          />
         </div>
       </div>
     );
