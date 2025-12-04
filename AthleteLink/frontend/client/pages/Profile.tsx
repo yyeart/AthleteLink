@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { getTimeGreeting } from '@/components/TimeParse';
+import { getTimeGreeting } from "@/components/TimeParse";
 import { format } from "date-fns";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
-import { User } from "lucide-react";
 import { getCookie } from "@/lib/csrf";
 
 export default function Profile() {
@@ -22,9 +21,11 @@ export default function Profile() {
   const [email, setEmail] = useState("");
 
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-  const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const [showBirthdateDropdown, setShowBirthdateDropdown] = useState(false);
-  const [showTelegramDropdown, setShowTelegramDropdown] = useState(false);
+
+  const genderOptions = [
+    { label: "Мужской", value: "male" },
+    { label: "Женский", value: "female" },
+  ];
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -39,100 +40,88 @@ export default function Profile() {
         try {
           const dateObj = new Date(user.birth_date);
           setBirthdate(format(dateObj, "dd.MM.yyyy"));
-        } catch (e) {
-          console.error("Invalid date format from backend:", user.birth_date);
+        } catch {
           setBirthdate(user.birth_date);
         }
       }
     }
   }, [user, isLoading]);
 
-  if (isLoading) {
-    return <div>Загрузка данных профиля...</div>
-  }
+  if (isLoading) return <div>Загрузка данных профиля...</div>;
+  if (!user) return <div>Ошибка: пользователь не авторизован</div>;
 
-  if(!user) {
-    return <div>Ошибка: пользователь не авторизован</div>
-  }
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const parseDateToISO = (d: string) => {
+    if (!d) return null;
+    if (d.includes(".")) {
+      const parts = d.split(".");
+      if (parts.length !== 3) return null;
+      const [dd, mm, yyyy] = parts;
+      return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+    }
+    return d;
+  };
 
-    const parseDateToISO = (d: string) => {
-      if (!d) return null;
-      // ожидаем формат dd.MM.yyyy или yyyy-MM-dd
-      if (d.includes('.')) {
-        const parts = d.split('.');
-        if (parts.length !== 3) return null;
-        const [dd, mm, yyyy] = parts;
-        return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-      }
-      // если уже ISO-ish
-      return d;
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleSaveSettings = async () => {
+    setSuccessMessage("");
+
+    const csrfToken = getCookie("csrftoken");
+    if (!csrfToken) {
+      console.error("CSRF token is missing");
+      return;
+    }
+
+    const parsedDate = parseDateToISO(birthdate);
+
+    const body: any = {
+      full_name: fullName,
+      username: username,
+      telegram: telegram,
+      city: city,
+      gender: gender,
     };
+    if (parsedDate) body.birth_date = parsedDate;
 
-    const handleSaveSettings = async () => {
-      const csrfToken = getCookie('csrftoken');
-      if (!csrfToken) {
-        console.error('CSRF token is missing');
-        // можно показать UI-уведомление
+    try {
+      const response = await fetch(`${apiUrl}/profile/me/update/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        console.error("Ошибка обновления профиля:", response.status, data);
         return;
       }
 
-      const parsedDate = parseDateToISO(birthdate);
-
-      const body: any = {
-        full_name: fullName,
-        username: username,
-        telegram: telegram,
-        city: city,
-        gender: gender,
-      };
-      if (parsedDate) body.birth_date = parsedDate;
-
-      try {
-        const response = await fetch(`${apiUrl}/profile/me/update/`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
-          },
-          credentials: "include",
-          body: JSON.stringify(body),
-        });
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => null);
-          console.error("Ошибка обновления профиля:", response.status, data);
-          // можно отобразить ошибки в UI
-          return;
-        }
-
-        // обновить данные пользователя в приложении
-        await refetchUser();
-        console.log("Профиль успешно обновлён");
-        // тут можно показать уведомление пользователю
-      } catch (error) {
-        console.error("Network error:", error);
-      }
-    };
-
+      await refetchUser();
+      setSuccessMessage("Настройки успешно сохранены");
+    } catch (e) {
+      console.error("Network error:", e);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
       <div className="flex min-h-screen">
         <SidebarNav activePage="profile" />
 
-        {/* Main Content */}
         <div className="flex-1 p-7 overflow-y-auto">
           <HeaderMenu
             greeting={`${getTimeGreeting()}, ${user.full_name}`}
             date={getCurrentDateFormatted()}
           />
 
-          {/* Profile Card */}
-          <div className="rounded-[10px] overflow-hidden ">
-            {/* Header Section */}
-            <div className="h-[88px] bg-gradient-to-r from-[#878DB3] to-[#001AFF]/30 relative ">
+          <div className="rounded-[10px] overflow-hidden">
+            <div className="h-[88px] bg-gradient-to-r from-[#878DB3] to-[#001AFF]/30 relative">
               <div className="flex items-center px-7 py-8 gap-6">
                 <img
                   src="/placeholder_avatar.jpg"
@@ -143,16 +132,23 @@ export default function Profile() {
                   <h2 className="text-black text-xl font-medium">{fullName}</h2>
                   <p className="text-black/50 text-base">{email}</p>
                 </div>
-                <button
-                  onClick={handleSaveSettings}
-                  className="ml-auto bg-[#4182F9] text-white px-5 py-2 rounded-lg text-base mt-32"
-                >
-                  Сохранить настройки
-                </button>
+                <div className="ml-auto mt-32 flex flex-col items-end">
+                  <button
+                    onClick={handleSaveSettings}
+                    className="bg-[#4182F9] text-white px-5 py-2 rounded-lg text-base"
+                  >
+                    Сохранить настройки
+                  </button>
+
+                  <div className="h-[24px] mt-1">
+                    {successMessage && (
+                      <p className="text-green-700 text-sm">{successMessage}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Form Section */}
             <div className="bg-white/50 p-8 min-h-[600px]">
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 {/* Full Name */}
@@ -164,8 +160,7 @@ export default function Profile() {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder={`${user.full_name}`}
-                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none"
+                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
                   />
                 </div>
 
@@ -178,8 +173,7 @@ export default function Profile() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder={`${user.username}`}
-                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none"
+                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
                   />
                 </div>
 
@@ -188,147 +182,87 @@ export default function Profile() {
                   <label className="block text-black/80 text-base mb-2">
                     Пол
                   </label>
+
                   <div className="relative">
                     <input
                       type="text"
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      placeholder={`${user.gender}`}
-                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
+                      readOnly
+                      value={
+                        genderOptions.find((g) => g.value === gender)?.label ||
+                        "Выберите пол"
+                      }
+                      onClick={() =>
+                        setShowGenderDropdown(!showGenderDropdown)
+                      }
+                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none cursor-pointer pr-10"
                     />
+
                     <button
-                      onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+                      type="button"
+                      onClick={() =>
+                        setShowGenderDropdown(!showGenderDropdown)
+                      }
                       className="absolute right-4 top-1/2 -translate-y-1/2"
                     >
-                      <svg
-                        className="w-[22px] h-[21px] opacity-50"
-                        viewBox="0 0 22 21"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M18.2602 7.83124L12.2836 13.5362C11.5777 14.21 10.4227 14.21 9.7169 13.5362L3.74023 7.83124"
-                          stroke="#292D32"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      ▼
                     </button>
+
+                    {showGenderDropdown && (
+                      <div className="absolute mt-2 w-full bg-white border border-black/10 rounded-lg shadow-md z-50">
+                        {genderOptions.map((option) => (
+                          <div
+                            key={option.value}
+                            onClick={() => {
+                              setGender(option.value);
+                              setShowGenderDropdown(false);
+                            }}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* City */}
-                <div className="relative">
+                <div>
                   <label className="block text-black/80 text-base mb-2">
                     Город
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      placeholder={`${user.city}`}
-                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
-                    />
-                    <button
-                      onClick={() => setShowCityDropdown(!showCityDropdown)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2"
-                    >
-                      <svg
-                        className="w-[20px] h-[21px] opacity-50"
-                        viewBox="0 0 20 21"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M16.5999 7.83124L11.1666 13.5362C10.5249 14.21 9.4749 14.21 8.83324 13.5362L3.3999 7.83124"
-                          stroke="#292D32"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
+                  />
                 </div>
 
                 {/* Birthdate */}
-                <div className="relative">
+                <div>
                   <label className="block text-black/80 text-base mb-2">
                     Дата рождения
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={birthdate}
-                      onChange={(e) => setBirthdate(e.target.value)}
-                      placeholder={`${user.birth_date}`}
-                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
-                    />
-                    <button
-                      onClick={() =>
-                        setShowBirthdateDropdown(!showBirthdateDropdown)
-                      }
-                      className="absolute right-4 top-1/2 -translate-y-1/2"
-                    >
-                      <svg
-                        className="w-[22px] h-[20px] opacity-50"
-                        viewBox="0 0 22 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M18.2602 7.45831L12.2836 12.8916C11.5777 13.5333 10.4227 13.5333 9.7169 12.8916L3.74023 7.45831"
-                          stroke="#292D32"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    value={birthdate}
+                    onChange={(e) => setBirthdate(e.target.value)}
+                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
+                  />
                 </div>
 
                 {/* Telegram */}
-                <div className="relative">
+                <div>
                   <label className="block text-black/80 text-base mb-2">
                     Идентификатор пользователя в Telegram
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={telegram}
-                      onChange={(e) => setTelegram(e.target.value)}
-                      placeholder={`${user.telegram}`}
-                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/40 text-base outline-none pr-10"
-                    />
-                    <button
-                      onClick={() =>
-                        setShowTelegramDropdown(!showTelegramDropdown)
-                      }
-                      className="absolute right-4 top-1/2 -translate-y-1/2"
-                    >
-                      <svg
-                        className="w-[20px] h-[20px] opacity-50"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M16.5999 7.45831L11.1666 12.8916C10.5249 13.5333 9.4749 13.5333 8.83324 12.8916L3.3999 7.45831"
-                          stroke="#292D32"
-                          strokeWidth="1.5"
-                          strokeMiterlimit="10"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    value={telegram}
+                    onChange={(e) => setTelegram(e.target.value)}
+                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
+                  />
                 </div>
               </div>
 
