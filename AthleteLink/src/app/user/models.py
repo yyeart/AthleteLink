@@ -41,7 +41,10 @@ class User(AbstractBaseUser):
     
     total_wins = models.PositiveIntegerField('Всего побед', default=0)
     total_losses = models.PositiveIntegerField('Всего поражений', default=0)
-    global_rating = models.IntegerField('Общий рейтинг', default=500)
+    global_rating = models.IntegerField('Общий рейтинг', default=0)
+
+    prestige_level = models.PositiveSmallIntegerField(default=0)
+    global_rank = models.PositiveIntegerField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'full_name', 'telegram', 'birth_date', 'city']
@@ -69,6 +72,10 @@ class UserSportStats(models.Model):
     wins = models.PositiveIntegerField('Побед', default=0)
     losses = models.PositiveIntegerField('Поражений', default=0)
     rating = models.IntegerField('Рейтинг в спорте', default=0)
+
+    win_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+
+    sport_rank_name = models.CharField(max_length=50, default='Искра I')
 
     class Meta:
         unique_together = ('user', 'sport')

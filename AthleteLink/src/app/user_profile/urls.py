@@ -10,4 +10,6 @@ urlpatterns = [
     path('<str:username>/inactive/', views.inactive_view, name='inactive'),
     path('<str:username>/requests/', views.games_view, name='games'),
     path('<str:username>/settings/', views.settings_view, name='settings'),
+    path('my-stats/', views.UserProfileStatsView.as_view(), name='my-stats'),
+    path('debug/', views.DebugView.as_view(), name='debug')
 ]

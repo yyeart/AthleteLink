@@ -10,7 +10,12 @@ class Sport(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название спорта')
     min_required_players = models.PositiveIntegerField('Минимальное кол-во игроков', default=2)
     max_required_players = models.PositiveIntegerField('Максимальное кол-во игроков', default=20)
-    # hint
+    icon_url = models.URLField(
+        max_length=200, 
+        blank=True, 
+        null=True, 
+        help_text="Полный URL или относительный путь к SVG/PNG иконке спорта."
+    )
 
     class Meta:
         db_table = 'sports'

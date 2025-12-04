@@ -34,7 +34,6 @@ services:
       - "8080:8080"
     environment:
       - VITE_API_URL=http://localhost:8000
-      - VITE_PUBLIC_BUILDER_KEY=__BUILDER_PUBLIC_KEY__
       - PING_MESSAGE="ping pong"
     depends_on:
       - backend
