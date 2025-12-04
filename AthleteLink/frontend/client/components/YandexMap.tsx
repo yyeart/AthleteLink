@@ -1,7 +1,13 @@
 import { useEffect, useRef } from "react";
 
+interface MapSelectionData {
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
 interface YandexMapProps {
-  onAddressSelect: (address: string) => void;
+  onAddressSelect: (data: MapSelectionData) => void;
   height?: string;
 }
 
@@ -82,9 +88,16 @@ export default function YandexMap({
             return response.json();
           })
           .then((data) => {
-            console.log("Geocoding response data:", data);
+            console.log("Geocoding response data:", data, longitude, latitude);
             if (data.address) {
-              onAddressSelect(data.address);
+              const fixedLatitude = parseFloat(latitude.toFixed(7));
+              const fixedLongitude = parseFloat(longitude.toFixed(7));
+
+              onAddressSelect({
+                address: data.address,
+                latitude: fixedLatitude,
+                longitude: fixedLongitude,
+              });
             } else {
               console.warn("No address found in response");
             }

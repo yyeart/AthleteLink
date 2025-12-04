@@ -7,6 +7,7 @@ import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import { includes, string } from "zod/v4";
 import React, { useCallback, useEffect, useState } from "react";
 import { request } from "http";
+import DisplayMap from "@/components/DisplayMap";
 
 function getCookie(name: string): string | null {
   let cookieValue = null;
@@ -49,6 +50,8 @@ interface RequestDetail {
   avgRating: number;
   game_result_text: string | null;
   personal_result: 'Win' | 'Loss' | null;
+  latitude: number;
+  longitude: number;
 }
 
 interface WinnerModalProps {
@@ -154,6 +157,7 @@ export default function RequestData() {
         throw new Error(`Ошибка загрузки данных: ${response.statusText}`);
       }
       const data = await response.json();
+      console.log(data);
       setRequestData(data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -222,6 +226,7 @@ export default function RequestData() {
     }
   }, [requestData, user, fetchRequestData]);
 
+
   const handleJoin = () => performAction('join');
   const handleLeave = () => performAction('leave');
   const handleStart = () => performAction('start');
@@ -240,6 +245,8 @@ export default function RequestData() {
   const handleFinish = (winnerIds: number[], gameResultText: string) => {
     performAction('finish', { winners_ids: winnerIds, game_result_text: gameResultText});
   };
+
+  const showMap = requestData?.latitude && requestData?.longitude && requestData?.location;
 
   if(isAuthLoading || isLoading) {
     return (
@@ -564,6 +571,27 @@ export default function RequestData() {
                                 </div>
 
                                 {/* КАРТА МЕСТОПОЛОЖЕНИЯ */}
+                                <div className="my-8">
+                                    <h3 className="text-3xl font-semibold mb-4 text-white">
+                                        Местоположение
+                                    </h3>
+                                    <div className="rounded-[40px] shadow-lg overflow-hidden">
+                                    {showMap ? (
+                                        <DisplayMap
+                                            latitude={requestData.latitude}
+                                            longitude={requestData.longitude}
+                                            address={requestData.location}
+                                            height="400px" // Можно настроить высоту
+                                        />
+                                    ) : (
+                                        <p className="p-8 bg-[#DDD]/50 text-center">
+                                            Данные о местоположении загружаются или отсутствуют.
+                                        </p>
+                                    )}
+                                    </div>
+                                    
+                                </div>
+
                   
                             </div>
 

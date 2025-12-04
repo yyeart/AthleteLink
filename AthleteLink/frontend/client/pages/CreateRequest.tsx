@@ -14,6 +14,12 @@ import {
 import YandexMap from "@/components/YandexMap";
 import { getCookie } from "@/lib/csrf";
 
+interface MapSelectionData {
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
 interface Sport {
   id: number,
   name: string,
@@ -64,9 +70,14 @@ export default function CreateRequest() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateInput, setDateInput] = useState("");
   const [time, setTime] = useState("");
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [isEventLoading, setIsEventLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    location: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
+  })
 
   // --- Dropdowns State ---
   const [showSportDropdown, setShowSportDropdown] = useState(false);
@@ -93,6 +104,15 @@ export default function CreateRequest() {
     if (val === "" || /^\d+$/.test(val)) {
        setNumberOfPlayers(val);
     }
+  };
+
+  const handleMapSelect = (data: MapSelectionData) => {
+    setFormData(prev => ({
+      ...prev,
+      location: data.address, 
+      latitude: data.latitude,      
+      longitude: data.longitude,
+    }));
   };
 
   const formatDateToDisplay = (date: Date | undefined): string => {
@@ -143,7 +163,7 @@ export default function CreateRequest() {
       return;
     }
     
-    if (!title || !selectedSportId || !playersCount || !dateInput || !time || !location) {
+    if (!title || !selectedSportId || !playersCount || !dateInput || !time || !formData.location) {
       alert("Пожалуйста, заполните все обязательные поля.");
       return;
     }
@@ -158,8 +178,10 @@ export default function CreateRequest() {
       numberOfPlayers: playersCount,
       date: dateInput,
       time,
-      location,
+      location: formData.location,
       description,
+      longitude: formData.longitude,
+      latitude: formData.latitude
     };
 
     try {
@@ -388,8 +410,8 @@ export default function CreateRequest() {
                       onClick={() => setShowLocationDropdown(!showLocationDropdown)}
                       className="w-full h-[68px] rounded-[15px] bg-[#F9F9F9]/50 px-5 flex items-center justify-between mb-4"
                     >
-                      <span className={`text-[22px] truncate ${location ? "text-black" : "text-black/40"}`}>
-                        {location || "Адрес или точка на карте"}
+                      <span className={`text-[22px] truncate ${formData.location ? "text-black" : "text-black/40"}`}>
+                        {formData.location || "Адрес или точка на карте"}
                       </span>
                       <span className="text-black/50 text-xl">📍</span>
                     </button>
@@ -399,7 +421,16 @@ export default function CreateRequest() {
                           <button
                             key={loc}
                             type="button"
-                            onClick={() => { setLocation(loc); setShowLocationDropdown(false); }}
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                location: loc,
+                                latitude: null,
+                                longitude: null,
+                              }));
+
+                              setShowLocationDropdown(false);
+                            }}
                             className="w-full px-5 py-3 text-left text-white text-[18px] hover:bg-[#3a3a3a] border-b border-white/20"
                           >
                             {loc}
@@ -409,7 +440,7 @@ export default function CreateRequest() {
                     )}
                   </div>
                   
-                  <YandexMap onAddressSelect={(addr) => setLocation(addr)} height="250px" />
+                  <YandexMap onAddressSelect={handleMapSelect} height="250px" />
                 </div>
               </div>
 
