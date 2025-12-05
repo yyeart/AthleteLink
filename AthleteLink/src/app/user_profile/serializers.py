@@ -9,12 +9,21 @@ user = get_user_model()
 
 class PublicUserInfoSerializer(serializers.Serializer):
     full_name = serializers.CharField()
-
+    formatted_name = serializers.SerializerMethodField()
     created_at = serializers.DateTimeField(format="%d.%m.%Y")
     gender = serializers.CharField()
     age = serializers.IntegerField()
     city = serializers.CharField()
     username = serializers.CharField()
+
+    def get_formatted_name(self, obj):
+        parts = obj.full_name.split()
+        first_name = parts[0] if parts else ""
+        last_name = parts[1] if len(parts) > 1 else ""
+
+        if last_name:
+            return f'{first_name} ({obj.username}) {last_name}'
+        return f'{first_name} ({obj.username})'
 
 class OtherSportPublicSerializer(serializers.Serializer):
     sport_name = serializers.CharField()
@@ -62,10 +71,18 @@ class BestSportPublicSerializer(serializers.ModelSerializer):
     # sport_icon = serializers.CharField(source='sport.icon', read_only=True) 
     rank_info = serializers.SerializerMethodField()
     win_rate = serializers.SerializerMethodField()
+    position_in_sport = serializers.SerializerMethodField()
 
     class Meta:
         model = UserSportStats
-        fields = ('sport_name', 'rating', 'wins', 'win_rate', 'rank_info')
+        fields = ('sport_name', 'rating', 'wins', 'win_rate', 'rank_info', 'position_in_sport')
+
+    def get_position_in_sport(self, obj):
+        higher_rank_count = UserSportStats.objects.filter(
+            sport=obj.sport,
+            rating__gt=obj.rating
+        ).count()
+        return higher_rank_count + 1
 
     def get_rank_info(self, obj):
         return get_sport_rank(obj.rating)
