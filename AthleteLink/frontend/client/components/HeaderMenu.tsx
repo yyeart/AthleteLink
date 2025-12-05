@@ -201,37 +201,6 @@ export default function HeaderMenu({
           </div>
         </button>
 
-        {/* Notifications */}
-        <div className="w-[46px] h-[45px] rounded-[10px] bg-white/50 flex items-center justify-center">
-          <svg
-            className="w-[21px] h-[21px]"
-            viewBox="0 0 22 21"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.6279 5.62871V8.53921"
-              stroke="black"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-            />
-            <path
-              d="M10.6457 1.74805C7.38654 1.74805 4.74729 4.35264 4.74729 7.56904V9.40449C4.74729 9.99883 4.4993 10.8903 4.18932 11.3973L3.06454 13.2502C2.37373 14.3952 2.85199 15.6712 4.12733 16.0908C8.36076 17.4805 12.9396 17.4805 17.173 16.0908C18.3687 15.6975 18.8823 14.3165 18.2358 13.2502L17.111 11.3973C16.801 10.8903 16.5531 9.99009 16.5531 9.40449V7.56904C16.5442 4.37012 13.8872 1.74805 10.6457 1.74805Z"
-              stroke="black"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-            />
-            <path
-              d="M13.5772 16.4491C13.5772 18.0486 12.2487 19.3596 10.6279 19.3596C9.822 19.3596 9.07805 19.0275 8.54665 18.5031C8.01526 17.9787 7.67871 17.2445 7.67871 16.4491"
-              stroke="black"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-            />
-          </svg>
-        </div>
-
         <button onClick={onProfileClick || (() => navigate("/profile"))}>
           <img
             src="/placeholder_avatar.jpg"

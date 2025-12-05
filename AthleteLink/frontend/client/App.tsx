@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Authors from "./pages/Authors"
 import AuthRedirect from "./pages/ProtectedProfile";
 import ProfileStats from "./pages/ProfileStats";
 import PublicProfile from "./pages/PublicProfile";
@@ -40,6 +41,7 @@ export const App = () => (
           {/* --- ПРИВАТНЫЕ МАРШРУТЫ (Только для авторизованных) --- */}
           <Route element={<ProtectedRoute />}>
             <Route path="/:username" element={<PublicProfile />} />
+            <Route path="/:username/authors" element={<ProfileOwnerGuard><Authors /></ProfileOwnerGuard>} />
             <Route path="/:username/profile" element={<ProfileOwnerGuard><Profile /></ProfileOwnerGuard>} />
             <Route path="/:username/stats" element={<ProfileOwnerGuard><ProfileStats /></ProfileOwnerGuard>} />
             <Route path="/:username/requests" element={<ProfileOwnerGuard><Requests /></ProfileOwnerGuard>} />

@@ -289,7 +289,7 @@ export default function ProfileStats() {
                               </div>
 
                               <button
-                                  onClick={() => navigate(`/${user.username}`)}
+                                  onClick={() => navigate("/public-profile")}
                                   className="w-full mt-6 bg-[#4182F9] text-white text-sm rounded-lg px-6 py-2 drop-shadow-[0_8px_4px_rgba(0,0,0,0.50)] hover:bg-[#3671E8] transition-colors"
                               >
                                   Как мой профиль видят другие люди?
@@ -313,6 +313,7 @@ export default function ProfileStats() {
                                       <div className="flex-1">
                                           <h4
                                               className="text-white text-base font-bold flex items-center gap-2"
+                                              style={{ WebkitTextStroke: "1px black" }}
                                           >
                                               {user?.full_name || 'Неизвестный'}
                                               {/* Иконка лучшего спорта рядом с ником */}
@@ -325,7 +326,8 @@ export default function ProfileStats() {
                                               )}
                                           </h4>
                                           <p
-                                              className="text-xs font-bold bg-gradient-to-b from-[#BCFFAB] via-[#F596FF] to-white bg-clip-text text-transparent"
+                                              className="text-xs font-bold bg-gradient-to-b from-[#A2E1B1] via-[#AE349C] to-white bg-clip-text text-transparent"
+                                              style={{ WebkitTextStroke: "1px black" }}
                                           >
                                               Уровень престижа: {prestige_info.level}
                                               <br />
@@ -337,6 +339,7 @@ export default function ProfileStats() {
 
                                       <div
                                           className="text-white text-2xl font-bold"
+                                          style={{ WebkitTextStroke: "1px black" }}
                                       >
                                           #{global_rank_position}
                                       </div>
