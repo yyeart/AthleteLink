@@ -2,6 +2,7 @@ from datetime import date
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.hashers import make_password, check_password
 from ..requests.models import Sport, ActivityRequest
 
 class UserManager(BaseUserManager):
@@ -20,6 +21,12 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser):
+    def set_secret_answer(self, answer: str):
+        self.secret_answer_hash = make_password(answer)
+
+    def check_secret_answer(self, answer: str) -> bool:
+        return check_password(answer, self.secret_answer_hash or "")
+
     full_name = models.CharField(max_length=100, verbose_name='Имя')
     username = models.CharField(max_length=50, unique=True, verbose_name='Никнейм')
     telegram = models.CharField(max_length=100, verbose_name='Telegram')
@@ -39,7 +46,20 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    
+
+    secret_question = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Секретный вопрос'
+    )
+    secret_answer_hash = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Хэш ответа на секретный вопрос'
+    )
+
     total_wins = models.PositiveIntegerField('Всего побед', default=0)
     total_losses = models.PositiveIntegerField('Всего поражений', default=0)
     global_rating = models.IntegerField('Общий рейтинг', default=0)

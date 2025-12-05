@@ -72,10 +72,10 @@ class ActivityRequest(models.Model):
     game_result_text = models.CharField('Результат (текст)', max_length=255, blank=True, null=True)
 
     STATUS_CHOICES = [
-        ('planned', 'Запланировано'),
-        ('active', 'Активно'),
-        ('completed', 'Завершено'),
-        ('cancelled', 'Отменено'),
+        ('planned', 'Игра запланирована'),
+        ('active', 'Игра активна'),
+        ('completed', 'Игра завершена'),
+        ('cancelled', 'Игра отменена'),
     ]
 
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='planned')

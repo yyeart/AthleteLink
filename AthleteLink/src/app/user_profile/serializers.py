@@ -118,6 +118,9 @@ class LastGameCardSerializer(serializers.ModelSerializer):
         return "Loss"
 
 class UserSerializer(serializers.ModelSerializer):
+    secret_question = serializers.CharField(required=False, allow_blank=True)
+    secret_answer = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
     class Meta:
         model = User
         fields = [
@@ -131,8 +134,22 @@ class UserSerializer(serializers.ModelSerializer):
             "city",
             "bio",
             "created_at",
+            "secret_question",
+            "secret_answer"
         ]
         read_only_fields = ["id", "email", "created_at"]
+
+    def update(self, instance, validated_data):
+        question = validated_data.pop("secret_question", None)
+        answer = validated_data.pop("secret_answer", None)
+
+        if question is not None:
+            instance.secret_question = question
+
+        if answer:
+            instance.set_secret_answer(answer)
+
+        return super().update(instance, validated_data)
 
 class RecentGameSerializer(serializers.ModelSerializer):
     sport_name = serializers.CharField(source='sport.name')
