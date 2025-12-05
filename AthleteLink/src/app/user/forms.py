@@ -1,0 +1,54 @@
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+from .models import User
+
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
+    password_confirm = forms.CharField(widget=forms.PasswordInput, label='Подтверждение пароля')
+
+    class Meta:
+        model = User
+        fields = [
+            'email', 'full_name',
+            'username', 'telegram', 'gender', 'birth_date', 'city', 'bio'
+        ]
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'bio': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
+
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', "Пароли не совпадают")
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
+
+class UserLoginForm(forms.Form):
+    email = forms.CharField(
+        label='Адрес электронной почты/Имя пользователя',
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'mai@mai.education'}
+        )
+    )
+
+    password = forms.CharField(
+        label='Пароль',
+        required=True,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': '********'
+            }
+        )
+    )
