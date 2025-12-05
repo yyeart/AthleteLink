@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { RUSSIAN_CITIES } from "@/data/russianCities";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [filteredCities, setFilteredCities] = useState<string[]>([]);
+  const [cityQuery, setCityQuery] = useState("");
+
 
   const [fullName, setFullName] = useState("");
   const [telegram, setTelegram] = useState("");
@@ -48,6 +53,26 @@ export default function Register() {
     return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   };
 
+  const getAgeFromDateStr = (dateStr: string): number | null => {
+      const parts = dateStr.split(".");
+      if (parts.length !== 3) return null;
+      const [dayS, monthS, yearS] = parts;
+      const day = Number(dayS);
+      const month = Number(monthS) - 1;
+      const year = Number(yearS);
+      if (Number.isNaN(day) || Number.isNaN(month) || Number.isNaN(year)) return null;
+      const dob = new Date(year, month, day);
+      if (isNaN(dob.getTime())) return null;
+
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+  };
+
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       setSelectedDate(date);
@@ -63,6 +88,34 @@ export default function Register() {
     setError(null); // Сбрасываем ошибку при изменении
   };
 
+  const handleCityInput = (value: string) => {
+      setCity(value);
+      setCityQuery(value);
+      setError(null);
+
+      if (!value.trim()) {
+        setFilteredCities([]);
+        setShowCityDropdown(false);
+        return;
+      }
+
+      const filtered = RUSSIAN_CITIES.filter((c) =>
+        c.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 8);
+
+      setFilteredCities(filtered);
+      setShowCityDropdown(filtered.length > 0);
+  };
+
+  const validatePasswordStrength = (password: string) => {
+    const lengthOk = password.length >= 8;
+    const upperOk = /[A-ZА-Я]/.test(password);
+    const lowerOk = /[a-zа-я]/.test(password);
+    const digitOk = /\d/.test(password);
+
+    return lengthOk && upperOk && lowerOk && digitOk;
+  };
+
   const handleContinueStep1 = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null); // Сбрасываем ошибку
@@ -74,6 +127,11 @@ export default function Register() {
 
     if (password !== confirmPassword) {
       setError("Пароли не совпадают!");
+      return;
+    }
+
+    if (!validatePasswordStrength(password)) {
+      setError("Пароль должен содержать минимум 8 символов, одну заглавную букву, одну строчную букву и одну цифру.");
       return;
     }
 
@@ -94,6 +152,18 @@ export default function Register() {
     // Validate birthdate format
     if (!validateDate(birthdate)) {
       setError("Пожалуйста, введите корректную дату рождения в формате ДД.ММ.ГГГГ");
+      setIsLoading(false);
+      return;
+    }
+
+    const age = getAgeFromDateStr(birthdate);
+    if (age === null) {
+      setError("Неверный формат даты рождения.");
+      setIsLoading(false);
+      return;
+    }
+    if (age < 14) {
+      setError("Для регистрации вам должно быть не менее 14 лет.");
       setIsLoading(false);
       return;
     }
@@ -455,7 +525,7 @@ export default function Register() {
                     <input
                       type="text"
                       value={city}
-                      onChange={handleCityChange}
+                      onChange={(e) => handleCityInput(e.target.value)}
                       onClick={() => setShowCityDropdown(true)}
                       placeholder="Введите или выберите из выпадающего списка"
                       className="flex-1 bg-transparent text-[#757575] text-[15px] outline-none placeholder:text-[#757575]"
@@ -475,13 +545,17 @@ export default function Register() {
                   </div>
                 </div>
                 {showCityDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-black border border-[#212121] rounded-lg shadow-xl overflow-hidden">
-                    <button type="button" onClick={() => handleCitySelect("Москва")} className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors">
-                      Москва
-                    </button>
-                    <button type="button" onClick={() => handleCitySelect("Санкт-Петербург")} className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors">
-                      Санкт-Петербург
-                    </button>
+                  <div className="absolute z-50 mt-2 w-full bg-black border border-[#212121] rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                    {filteredCities.map((c) => (
+                      <button
+                        type="button"
+                        key={c}
+                        onClick={() => handleCitySelect(c)}
+                        className="w-full text-left px-4 py-3 text-white hover:bg-[#212121] transition-colors"
+                      >
+                        {c}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>

@@ -7,6 +7,9 @@ import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
 import { getCookie } from "@/lib/csrf";
+import { RUSSIAN_CITIES } from "@/data/russianCities";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -21,11 +24,36 @@ export default function Profile() {
   const [email, setEmail] = useState("");
 
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [birthdateObj, setBirthdateObj] = useState<Date | undefined>(undefined);
+  const [showBirthCalendar, setShowBirthCalendar] = useState(false);
+
 
   const genderOptions = [
     { label: "Мужской", value: "male" },
     { label: "Женский", value: "female" },
   ];
+
+  const [cityQuery, setCityQuery] = useState("");
+  const [filteredCities, setFilteredCities] = useState<string[]>([]);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const handleCityInput = (value: string) => {
+    setCity(value);
+    setCityQuery(value);
+
+    if (!value.trim()) {
+      setFilteredCities([]);
+      setShowCityDropdown(false);
+      return;
+    }
+
+    const filtered = RUSSIAN_CITIES.filter((c) =>
+      c.toLowerCase().includes(value.toLowerCase())
+    ).slice(0, 8);
+
+    setFilteredCities(filtered);
+    setShowCityDropdown(filtered.length > 0);
+  };
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -40,6 +68,7 @@ export default function Profile() {
         try {
           const dateObj = new Date(user.birth_date);
           setBirthdate(format(dateObj, "dd.MM.yyyy"));
+          setBirthdateObj(new Date(user.birth_date));
         } catch {
           setBirthdate(user.birth_date);
         }
@@ -64,9 +93,50 @@ export default function Profile() {
   };
 
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const getAgeFromDateStr = (dateStr: string): number | null => {
+      if (!dateStr) return null;
+      const parts = dateStr.split(".");
+      if (parts.length !== 3) return null;
+
+      const [dd, mm, yyyy] = parts;
+      const day = Number(dd);
+      const month = Number(mm) - 1;
+      const year = Number(yyyy);
+
+      const dob = new Date(year, month, day);
+      if (isNaN(dob.getTime())) return null;
+
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      return age;
+  };
 
   const handleSaveSettings = async () => {
     setSuccessMessage("");
+
+    setErrorMessage("");
+
+    if (birthdate) {
+      const age = getAgeFromDateStr(birthdate);
+
+      if (age === null) {
+        setErrorMessage("Введите корректную дату рождения.");
+        return;
+      }
+
+      if (age < 14) {
+        setErrorMessage("Вам должно быть не менее 14 лет.");
+        return;
+      }
+    }
 
     const csrfToken = getCookie("csrftoken");
     if (!csrfToken) {
@@ -97,9 +167,18 @@ export default function Profile() {
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        console.error("Ошибка обновления профиля:", response.status, data);
-        return;
+          const data = await response.json().catch(() => null);
+
+          if (data) {
+            if (data.username?.[0]) setErrorMessage(data.username[0]);
+            else if (data.email?.[0]) setErrorMessage(data.email[0]);
+            else if (data.birth_date?.[0]) setErrorMessage(data.birth_date[0]);
+            else setErrorMessage("Ошибка обновления данных профиля.");
+          } else {
+            setErrorMessage("Ошибка обновления данных профиля.");
+          }
+
+          return;
       }
 
       await refetchUser();
@@ -140,10 +219,17 @@ export default function Profile() {
                     Сохранить настройки
                   </button>
 
-                  <div className="h-[24px] mt-1">
-                    {successMessage && (
-                      <p className="text-green-700 text-sm">{successMessage}</p>
-                    )}
+                  <div className="min-h-[24px] mt-1">
+                      {errorMessage && (
+                        <p className="text-red-700 text-sm">
+                          {errorMessage}
+                        </p>
+                      )}
+                      {!errorMessage && successMessage && (
+                        <p className="text-green-700 text-sm">
+                          {successMessage}
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
@@ -151,7 +237,6 @@ export default function Profile() {
 
             <div className="bg-white/50 p-8 min-h-[600px]">
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                {/* Full Name */}
                 <div>
                   <label className="block text-black/80 text-base mb-2 mt-40 ml-2">
                     Фамилия и имя
@@ -164,7 +249,6 @@ export default function Profile() {
                   />
                 </div>
 
-                {/* Username */}
                 <div>
                   <label className="block text-black/80 text-base mb-2 mt-40 ml-2">
                     Имя пользователя
@@ -177,7 +261,6 @@ export default function Profile() {
                   />
                 </div>
 
-                {/* Gender */}
                 <div className="relative">
                   <label className="block text-black/80 text-base mb-2">
                     Пол
@@ -226,33 +309,83 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* City */}
-                <div>
+                <div className="relative">
                   <label className="block text-black/80 text-base mb-2">
                     Город
                   </label>
+
                   <input
                     type="text"
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    onChange={(e) => handleCityInput(e.target.value)}
+                    onFocus={() => {
+                      if (filteredCities.length > 0) setShowCityDropdown(true);
+                    }}
                     className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
+                    placeholder="Начните вводить город..."
                   />
+
+                  {showCityDropdown && (
+                    <div className="absolute top-full left-0 mt-2 w-full bg-white border border-black/10 rounded-lg shadow-md z-50 max-h-60 overflow-y-auto">
+                      {filteredCities.map((c) => (
+                        <div
+                          key={c}
+                          onClick={() => {
+                            setCity(c);
+                            setCityQuery(c);
+                            setShowCityDropdown(false);
+                          }}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {c}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Birthdate */}
                 <div>
                   <label className="block text-black/80 text-base mb-2">
                     Дата рождения
                   </label>
-                  <input
-                    type="text"
-                    value={birthdate}
-                    onChange={(e) => setBirthdate(e.target.value)}
-                    className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 text-black/80 text-base outline-none"
-                  />
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={birthdate}
+                      onChange={(e) => setBirthdate(e.target.value)}
+                      placeholder="ДД.ММ.ГГГГ"
+                      className="w-full bg-[#F9F9F9]/50 rounded-lg px-4 py-3 pr-12 text-black/80 text-base outline-none"
+                    />
+
+                    <Popover open={showBirthCalendar} onOpenChange={setShowBirthCalendar}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-xl"
+                          onClick={() => setShowBirthCalendar(true)}
+                        >
+                          📅
+                        </button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="p-0 bg-white shadow-lg rounded-lg w-auto">
+                        <Calendar
+                          mode="single"
+                          selected={birthdateObj}
+                          onSelect={(d) => {
+                            if (!d) return;
+                            setBirthdate(format(d, "dd.MM.yyyy"));
+                            setBirthdateObj(d);
+                            setShowBirthCalendar(false);
+                          }}
+                          defaultMonth={birthdateObj || new Date(2000, 0)}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
 
-                {/* Telegram */}
                 <div>
                   <label className="block text-black/80 text-base mb-2">
                     Идентификатор пользователя в Telegram
@@ -266,7 +399,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Email Section */}
               <div className="mt-12">
                 <h3 className="text-black text-lg font-medium mb-4">
                   Адрес электронной почты
