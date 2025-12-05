@@ -39,6 +39,11 @@ def get_sport_rank(rating):
         'points_needed': required
     }
 
+def get_roman_numeral(rank_name):
+    if not rank_name: return ""
+    parts = rank_name.split(' ')
+    if len(parts) < 2: return ""
+    return parts[-1]
 
 PRESTIGE_TIERS = [
     (1, 100),    

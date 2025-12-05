@@ -1,11 +1,104 @@
 from rest_framework import serializers
-
-from ..rank_service import calculate_prestige_data, get_sport_rank
+from ..rank_service import calculate_prestige_data, get_sport_rank, get_roman_numeral
+from .profile_service import get_other_sports_list, get_profile_stats
 from ..user.models import User, UserSportStats
 from ..requests.models import ActivityRequest
 from django.contrib.auth import get_user_model
 
 user = get_user_model()
+
+class PublicUserInfoSerializer(serializers.Serializer):
+    full_name = serializers.CharField()
+
+    created_at = serializers.DateTimeField(format="%d.%m.%Y")
+    gender = serializers.CharField()
+    age = serializers.IntegerField()
+    city = serializers.CharField()
+    username = serializers.CharField()
+
+class OtherSportPublicSerializer(serializers.Serializer):
+    sport_name = serializers.CharField()
+    rating = serializers.IntegerField()
+    rank_image = serializers.CharField()
+    roman_numeral = serializers.CharField()
+
+class PublicProfilePageSerializer(serializers.Serializer):
+    user_info = serializers.SerializerMethodField()
+    last_game = serializers.SerializerMethodField()
+    best_sport = serializers.SerializerMethodField()
+    other_sports = serializers.SerializerMethodField()
+    global_stats = serializers.SerializerMethodField()
+
+    def get_user_info(self, obj):
+        return PublicUserInfoSerializer(obj).data
+
+    def get_last_game(self, obj):
+        game = ActivityRequest.objects.filter(
+            participants=obj
+        ).order_by('-event_date').first()
+        
+        if game:
+            return LastGameCardSerializer(game, context={'target_user': obj}).data
+        return None
+
+    def get_best_sport(self, obj):
+        stat = obj.sport_stats.order_by('-rating').first()
+        if stat:
+            return BestSportPublicSerializer(stat).data
+        return None
+
+    def get_other_sports(self, obj):
+        best_stat = obj.sport_stats.order_by('-rating').first()
+        exclude_id = best_stat.id if best_stat else None
+        
+        data_list = get_other_sports_list(obj, exclude_sport_id=exclude_id)
+        return OtherSportPublicSerializer(data_list, many=True).data
+
+    def get_global_stats(self, obj):
+        return get_profile_stats(obj)
+
+class BestSportPublicSerializer(serializers.ModelSerializer):
+    sport_name = serializers.CharField(source='sport.name')
+    # sport_icon = serializers.CharField(source='sport.icon', read_only=True) 
+    rank_info = serializers.SerializerMethodField()
+    win_rate = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserSportStats
+        fields = ('sport_name', 'rating', 'wins', 'win_rate', 'rank_info')
+
+    def get_rank_info(self, obj):
+        return get_sport_rank(obj.rating)
+    
+    def get_win_rate(self, obj):
+        total_wins = obj.wins
+        total_losses = obj.losses
+        total_games = total_wins + total_losses
+
+        if total_games == 0:
+            return 0.0
+        
+        win_rate = (total_wins / total_games) * 100
+
+        return round(win_rate, 2)
+
+class LastGameCardSerializer(serializers.ModelSerializer):
+    sport_name = serializers.CharField(source='sport.name')
+    date = serializers.DateTimeField(source='event_date', format="%d.%m.%Y")
+    time = serializers.DateTimeField(source='event_date', format="%H:%M")
+    personal_result = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActivityRequest
+        fields = ('id', 'title', 'sport_name', 'date', 'time', 'personal_result')
+
+    def get_personal_result(self, obj):
+        user = self.context.get('target_user')
+        if not user: return "-"
+        if obj.status != 'completed': return "Active"
+        if obj.winners.filter(id=user.id).exists():
+            return "Win"
+        return "Loss"
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

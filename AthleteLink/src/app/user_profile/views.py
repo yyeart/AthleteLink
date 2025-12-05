@@ -7,17 +7,24 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserFullStatsSerializer
-
-from .serializers import UserSerializer
+from .serializers import UserFullStatsSerializer, UserSerializer, PublicProfilePageSerializer
 from .permissions import IsProfileOwner
-
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework import status
-
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+
+User = get_user_model()
+
+class PublicProfileDataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, username):
+        target_user = get_object_or_404(User, username=username)
+        serializer = PublicProfilePageSerializer(target_user)
+
+        return Response(serializer.data)
 
 class CurrentUserUpdateView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer

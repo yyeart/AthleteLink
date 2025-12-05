@@ -39,11 +39,11 @@ export const App = () => (
           <Route path="/requests" element={<AllRequests />} />
           {/* --- ПРИВАТНЫЕ МАРШРУТЫ (Только для авторизованных) --- */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/:username" element={<PublicProfile />} />
             <Route path="/:username/profile" element={<ProfileOwnerGuard><Profile /></ProfileOwnerGuard>} />
             <Route path="/:username/stats" element={<ProfileOwnerGuard><ProfileStats /></ProfileOwnerGuard>} />
             <Route path="/:username/requests" element={<ProfileOwnerGuard><Requests /></ProfileOwnerGuard>} />
             <Route path="/:username/settings" element={<ProfileOwnerGuard><Settings /></ProfileOwnerGuard>} />
-            <Route path="/public-profile" element={<PublicProfile />} />
             <Route path="/requests/:id" element={<RequestData />} />
             <Route path="/requests/create" element={<CreateRequest />} />
             <Route path="/leaderboard" element={<Leaderboard />} />

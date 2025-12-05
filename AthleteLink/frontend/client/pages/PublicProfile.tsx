@@ -305,34 +305,7 @@ export default function PublicProfile() {
                   </p>
                 </div>
               </div>
-
-              <div>
-                <h3 className="text-white text-xl font-light mb-4">
-                  Последние соперники:
-                </h3>
-
-                <div className="flex gap-4">
-                  {PUBLIC_PROFILE_DATA.recentOpponents.map((opponent) => (
-                    <div
-                      key={opponent.id}
-                      className="rounded-[25px] border-[1.5px] border-black bg-gradient-to-r from-[#4F0A0A] to-[#780000] p-4 flex items-center gap-3 flex-1"
-                    >
-                      <img
-                        src={`${opponent.avatar}?width=76`}
-                        alt={opponent.name}
-                        className="w-[38px] h-[36px] rounded-full object-cover"
-                      />
-                      <p
-                        className="text-white text-2x1 font-light"
-                        style={{ WebkitTextStroke: "1px white" }}
-                      >
-                        {opponent.name}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+              
               <div>
                 <h3 className="text-white text-xl font-light mb-4">
                   Положение в общем рейтинге:
