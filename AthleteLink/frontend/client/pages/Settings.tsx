@@ -5,37 +5,50 @@ import { useNavigate } from "react-router-dom";
 import HeaderMenu from "@/components/HeaderMenu";
 import SidebarNav from "@/components/SidebarMenu";
 import { getCurrentDateFormatted } from "@/lib/dateFormatter";
-import { getCookie } from "@/lib/csrf"; // <- убедись, что этот модуль существует
+import { getCookie } from "@/lib/csrf";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const SECRET_QUESTIONS = [
+  "Девичья фамилия матери",
+  "Имя первого питомца",
+  "Город, где вы родились",
+  "Любимый школьный учитель",
+  "Любимая компьютерная игра",
+  "Номер машины вашего отца"
+];
+
 export default function Settings() {
   const navigate = useNavigate();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [secretQuestionAnswer, setSecretQuestionAnswer] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [selectedSecretQuestion, setSelectedSecretQuestion] = useState("");
-  const [secretAnswer, setSecretAnswer] = useState("");
-  const [showQuestionDropdown, setShowQuestionDropdown] = useState(false);
-
-  const { logoutUser } = useAuth();
-  const { user, isLoading } = useAuth();
+  const { logoutUser, user, isLoading, refetchUser } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // ошибки/статус смены пароля (показываются под требованиями и над кнопкой)
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordSecretAnswer, setPasswordSecretAnswer] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<string[] | null>(null);
   const [passwordErrorSingle, setPasswordErrorSingle] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const secretQuestions = [
-    "Имя вашего первого питомца?",
-    "Название вашей первой школы?",
-    "Девичья фамилия матери?",
-    "Ваш любимый город?",
-  ];
+  const [showQuestionDropdown, setShowQuestionDropdown] = useState(false);
+  const [selectedSecretQuestion, setSelectedSecretQuestion] = useState<string>("");
+  const [secretAnswer, setSecretAnswer] = useState("");
+  const [currentSecretAnswer, setCurrentSecretAnswer] = useState("");
+  const [secretError, setSecretError] = useState<string | null>(null);
+  const [secretSuccess, setSecretSuccess] = useState<string | null>(null);
+  const [isSavingSecret, setIsSavingSecret] = useState(false);
 
-  // Простая клиентская проверка требований:
+  if (isLoading) {
+    return <div>Загрузка настроек...</div>
+  }
+
+  if (!user) {
+    return <div>Ошибка: пользователь не авторизован</div>
+  }
+
+  const userHasQuestion = Boolean(user.secret_question);
+
   const checkClientPasswordRequirements = (pwd: string) => {
     const errors: string[] = [];
     if (pwd.length < 8) errors.push("Не менее 8 символов.");
@@ -46,12 +59,10 @@ export default function Settings() {
   };
 
   const handleChangePassword = async () => {
-    // сброс UI-статусов
     setPasswordErrors(null);
     setPasswordErrorSingle(null);
     setPasswordSuccess(null);
 
-    // базовая проверка
     if (!currentPassword) {
       setPasswordErrorSingle("Введите текущий пароль.");
       return;
@@ -87,16 +98,16 @@ export default function Settings() {
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,
+          secret_answer: user.secret_question ? passwordSecretAnswer : null
         }),
       });
 
       if (resp.ok) {
         const data = await resp.json().catch(() => null);
-        setPasswordSuccess(data?.detail || "Пароль успешно изменён.");
+        setPasswordSuccess(data?.detail || "Пароль успешно изменён. Перезагрузите страницу");
         setCurrentPassword("");
         setNewPassword("");
       } else {
-        // ожидаем JSON с { error: "..."} или { errors: [...] }
         let json: any = null;
         try { json = await resp.json(); } catch (e) { json = null; }
 
@@ -120,17 +131,73 @@ export default function Settings() {
     }
   };
 
-  const handleSaveSecretQuestion = () => {
-    console.log("Saving secret question...");
-  };
+  const handleSaveSecretQuestion = async () => {
+    setSecretError(null);
+    setSecretSuccess(null);
 
-  const handleDeleteAccount = () => {
-    const confirmed = window.confirm(
-      "Вы уверены, что хотите удалить учетную запись? Это действие необратимо.",
-    );
-    if (confirmed) {
-      console.log("Deleting account...");
-      navigate("/");
+    if (!selectedSecretQuestion) {
+      setSecretError("Выберите секретный вопрос.");
+      return;
+    }
+    if (!secretAnswer) {
+      setSecretError("Введите ответ на секретный вопрос.");
+      return;
+    }
+
+    if (userHasQuestion && !currentSecretAnswer) {
+      setSecretError("Введите текущий ответ на секретный вопрос.");
+      return;
+    }
+
+    setIsSavingSecret(true);
+
+    try {
+      const csrfToken = getCookie('csrftoken');
+      if (!csrfToken) {
+        setSecretError("CSRF token отсутствует. Попробуйте перезагрузить страницу.");
+        setIsSavingSecret(false);
+        return;
+      }
+
+      const payload: any = {
+        new_secret_question: selectedSecretQuestion,
+        new_secret_answer: secretAnswer,
+      };
+
+      if (userHasQuestion) {
+        payload.current_secret_answer = currentSecretAnswer;
+      }
+
+      const resp = await fetch(`${apiUrl}/profile/change-secret-question/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const json = await resp.json().catch(() => null);
+
+      if (resp.ok) {
+        setSecretSuccess(json?.detail || "Секретный вопрос сохранён.");
+        setSelectedSecretQuestion("");
+        setSecretAnswer("");
+        setCurrentSecretAnswer("");
+        await refetchUser();
+      } else {
+        if (json && json.error) {
+          setSecretError(json.error);
+        } else {
+          setSecretError("Ошибка при сохранении секретного вопроса.");
+        }
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      setSecretError("Сетевая ошибка. Проверьте соединение.");
+    } finally {
+      setIsSavingSecret(false);
     }
   };
 
@@ -147,13 +214,15 @@ export default function Settings() {
     }
   };
 
-  if (isLoading) {
-    return <div>Загрузка настроек...</div>
-  }
-
-  if (!user) {
-    return <div>Ошибка: пользователь не авторизован</div>
-  }
+  const handleDeleteAccount = () => {
+    const confirmed = window.confirm(
+      "Вы уверены, что хотите удалить учетную запись? Это действие необратимо.",
+    );
+    if (confirmed) {
+      console.log("Deleting account...");
+      navigate("/");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-[#493D02] overflow-y-auto">
@@ -179,14 +248,6 @@ export default function Settings() {
               />
 
               <input
-                type="text"
-                value={secretQuestionAnswer}
-                onChange={(e) => setSecretQuestionAnswer(e.target.value)}
-                placeholder="Ответ на секретный вопрос:"
-                className="w-full max-w-[526px] h-[45px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-[15px] outline-none placeholder:text-black/40"
-              />
-
-              <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -194,13 +255,21 @@ export default function Settings() {
                 className="w-full max-w-[526px] h-[45px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
               />
             </div>
+            {user.secret_question && (
+              <input
+                type="text"
+                value={passwordSecretAnswer}
+                onChange={(e) => setPasswordSecretAnswer(e.target.value)}
+                placeholder="Ответ на текущий секретный вопрос"
+                className="w-full max-w-[526px] h-[46px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
+              />
+            )}
 
             <p className="text-black text-base opacity-80 mb-3 max-w-[526px]">
               Требования: не менее 8 символов, не менее 1 заглавной буквы, не
               менее 1 строчной буквы, не менее 1 цифры
             </p>
 
-            {/* Ошибки выводятся ниже требований и над кнопкой */}
             <div className="mb-4 max-w-[526px]">
               {passwordSuccess && (
                 <div className="text-green-700 bg-green-100 p-3 rounded-md mb-2">
@@ -233,16 +302,31 @@ export default function Settings() {
               {isSubmitting ? "Отправка..." : "Изменить пароль"}
             </button>
 
-            {/* --- остальная часть страницы (секретный вопрос и др.) --- */}
             <h2 className="text-black text-4xl font-bold mb-2">
               Секретный вопрос
             </h2>
 
-            <p className="text-black text-base opacity-80 mb-6">
-              Текущий секретный вопрос: не установлен.
-            </p>
+            {userHasQuestion ? (
+              <p className="text-black text-base opacity-80 mb-4">
+                Текущий секретный вопрос: <span className="font-medium">{user.secret_question}</span>
+              </p>
+            ) : (
+              <p className="text-black text-base opacity-80 mb-4">
+                Текущий секретный вопрос: не установлен.
+              </p>
+            )}
 
             <div className="space-y-4 mb-6 relative">
+              {userHasQuestion && (
+                <input
+                  type="text"
+                  value={currentSecretAnswer}
+                  onChange={(e) => setCurrentSecretAnswer(e.target.value)}
+                  placeholder="Ответ на текущий секретный вопрос"
+                  className="w-full max-w-[526px] h-[46px] rounded-lg bg-[#F9F9F9]/50 px-4 text-black/40 text-base outline-none placeholder:text-black/40"
+                />
+              )}
+
               <div className="relative w-full max-w-[526px]">
                 <input
                   type="text"
@@ -275,7 +359,7 @@ export default function Settings() {
                 </button>
                 {showQuestionDropdown && (
                   <div className="absolute z-50 mt-2 w-full bg-white border border-black/10 rounded-lg shadow-xl overflow-hidden">
-                    {secretQuestions.map((question, index) => (
+                    {SECRET_QUESTIONS.map((question, index) => (
                       <button
                         key={index}
                         onClick={() => {
@@ -300,12 +384,26 @@ export default function Settings() {
               />
             </div>
 
+            <div className="mb-4 max-w-[526px]">
+              {secretSuccess && (
+                <div className="text-green-700 bg-green-100 p-3 rounded-md mb-2">
+                  {secretSuccess}
+                </div>
+              )}
+              {secretError && (
+                <div className="text-red-700 bg-red-100 p-3 rounded-md mb-2">
+                  {secretError}
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-4 items-center  mb-6">
               <button
                 onClick={handleSaveSecretQuestion}
                 className="w-[217px] h-[38px] rounded-lg bg-[#4182F9] text-white text-base text-center"
+                disabled={isSavingSecret}
               >
-                Сохранить
+                {isSavingSecret ? "Сохранение..." : (userHasQuestion ? "Изменить секретный вопрос" : "Сохранить секретный вопрос")}
               </button>
             </div>
 
@@ -336,6 +434,7 @@ export default function Settings() {
 
             <img
               src="/MAI_logo.png"
+              alt="MAI Logo"
               className="absolute right-8 top-[280px] w-[367px] h-[354px] object-contain animate-levitate-active"
             />
           </div>

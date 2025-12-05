@@ -85,29 +85,74 @@ def settings_view(request, username):
 @permission_classes([IsAuthenticated])
 def change_password(request):
     user = request.user
-    data = request.data or {}
+    current_password = request.data.get("current_password")
+    new_password = request.data.get("new_password")
+    secret_answer = request.data.get("secret_answer")
 
-    current_password = data.get("current_password", "")
-    new_password = data.get("new_password", "")
+    if not current_password or not new_password:
+        return Response({"error": "Укажите текущий и новый пароль."}, status=400)
 
     if not user.check_password(current_password):
-        return Response({"error": "Текущий пароль неверен."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Текущий пароль неверен."}, status=400)
 
-    if user.check_password(new_password):
-        return Response({"error": "Новый пароль не должен совпадать с текущим."}, status=status.HTTP_400_BAD_REQUEST)
+    if user.secret_question:
+        if not secret_answer:
+            return Response({"error": "Введите ответ на секретный вопрос."}, status=400)
 
-    try:
-        validate_password(new_password, user=user)
-    except ValidationError as e:
-        return Response({"errors": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.check_secret_answer(secret_answer):
+            return Response({"error": "Ответ на секретный вопрос неверен."}, status=400)
 
     user.set_password(new_password)
     user.save()
 
+    return Response({"detail": "Пароль успешно изменён."}, status=200)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reset_password_by_secret(request):
+    email = request.data.get("email")
+    answer = request.data.get("secret_answer")
+    new_password = request.data.get("new_password")
+
+    if not (email and answer and new_password):
+        return Response({"error": "Все поля обязательны."}, status=400)
+
     try:
-        update_session_auth_hash(request, user)
-    except Exception:
-        pass
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({"error": "Пользователь не найден."}, status=404)
 
-    return Response({"detail": "Пароль успешно изменён."}, status=status.HTTP_200_OK)
+    if not user.check_secret_answer(answer):
+        return Response({"error": "Неверный ответ на секретный вопрос."}, status=400)
 
+    user.set_password(new_password)
+    user.save()
+
+    return Response({"detail": "Пароль успешно изменён."})
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_secret_question(request):
+    user = request.user
+    data = request.data or {}
+
+    new_question = data.get("new_secret_question", "").strip()
+    new_answer = data.get("new_secret_answer", "").strip()
+    current_answer = data.get("current_secret_answer", "").strip()
+
+    if not new_question:
+        return Response({"error": "Нужно выбрать новый секретный вопрос."}, status=status.HTTP_400_BAD_REQUEST)
+    if not new_answer:
+        return Response({"error": "Нужно ввести новый ответ на секретный вопрос."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if user.secret_question:
+        if not current_answer:
+            return Response({"error": "Нужно ввести текущий ответ на секретный вопрос."}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.check_secret_answer(current_answer):
+            return Response({"error": "Текущий ответ на секретный вопрос неверен."}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.secret_question = new_question
+    user.set_secret_answer(new_answer)
+    user.save()
+
+    return Response({"detail": "Секретный вопрос успешно сохранён."}, status=status.HTTP_200_OK)
