@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
         ('male', 'Мужской'),
         ('female', 'Женский'),
     ]
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True, verbose_name='Пол', default='Не указан')
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True, verbose_name='Пол', default='male')
     
     birth_date = models.DateField(verbose_name='Дата рождения')
     city = models.CharField(max_length=100, verbose_name='Город')
